@@ -1,29 +1,32 @@
-# Proyecto Final DAM – Guardería Canina
+# 🐶  Proyecto Final DAM – Guardería Canina
 
-## 🐶 Descripción
+## 📖 Descripción
 
-Aplicación web desarrollada como proyecto final del ciclo DAM para la gestión de una guardería canina.
-Permite registrar usuarios, gestionar mascotas y realizar reservas desde una interfaz web sencilla.
+Aplicación web desarrollada como proyecto final del ciclo Desarrollo de Aplicaciones Multiplataforma (DAM).
+El sistema permite gestionar de forma eficiente una guardería canina mediante el registro de usuarios, la administración de mascotas y la creación de reservas.
 
 ## ⚙️ Funcionalidades
 
-* Gestión de usuarios
-* Gestión de mascotas
-* Creación y consulta de reservas
-* Relación entre usuarios, mascotas y reservas
-* Panel de administración (en desarrollo)
+👤 Gestión de usuarios (alta, consulta y eliminación)
+🐕 Gestión de mascotas asociadas a usuarios
+📅 Creación y consulta de reservas
+🔗 Relación entre entidades: Usuario → Mascota → Reserva
+🛠️ API REST funcional
+🖥️ Interfaz web básica
+⚠️ Validación básica de datos
+🧪 Control de solapamiento de reservas
 
 ## 🛠️ Tecnologías
 
-* Java
-* Spring Boot
-* JPA / Hibernate
-* MySQL
-* HTML
-* CSS
-* JavaScript
+☕ Java
+🚀 Spring Boot
+🗄️ JPA / Hibernate
+🐬 MySQL
+🌐 HTML, CSS, JavaScript
+📦 Maven
+🐙 Git & GitHub
 
-## 🚀 Cómo ejecutar el proyecto
+## 🚀 Puesta en marcha
 
 ### 1. Base de datos
 
@@ -46,26 +49,44 @@ spring.jpa.hibernate.ddl-auto=update
 
 ### 3. Ejecutar backend
 
-Desde IntelliJ → Run
+Desde IntelliJ:
+
+Run → GuarderiaCaninaApplication
+
+Servidor disponible en:
+
+http://localhost:8080
 
 ### 4. Abrir frontend
 
 Abrir `index.html` en el navegador
 
+🔗 Endpoints principales
+👤 Usuarios
+GET /api/usuarios
+POST /api/usuarios
+DELETE /api/usuarios/{id}
+🐕 Mascotas
+GET /api/mascotas
+POST /api/mascotas
+DELETE /api/mascotas/{id}
+📅 Reservas
+GET /api/reservas
+POST /api/reservas/mascota/{id}
+
 ## 📁 Estructura
 
-* backend → aplicación Spring Boot
-* frontend → HTML, CSS y JS
-* docs → documentación y capturas
+backend/
+ ├── controller
+ ├── model
+ ├── repository
 
-## 📸 Capturas
+frontend/
+ ├── index.html
+ ├── css/
+ ├── js/
 
-(Se añadirán capturas de la aplicación)
+docs/
+ ├── memoria.pdf
+ ├── capturas/
 
-## 👤 Autor
-
-José Luis Vázquez Matas
-
-## 📌 Estado
-
-Versión entregable para evaluación del Proyecto Final DAM
