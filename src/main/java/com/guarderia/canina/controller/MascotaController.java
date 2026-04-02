@@ -21,7 +21,6 @@ public class MascotaController {
         this.usuarioRepository = usuarioRepository;
     }
 
-    // 🔹 Crear mascota asociada a un usuario
     @PostMapping("/usuario/{usuarioId}")
     public Mascota crearMascota(@PathVariable Long usuarioId,
                                 @RequestBody Mascota mascota) {
@@ -34,15 +33,18 @@ public class MascotaController {
         return mascotaRepository.save(mascota);
     }
 
-    // 🔹 Listar todas las mascotas
     @GetMapping
     public List<Mascota> listarMascotas() {
         return mascotaRepository.findAll();
     }
 
-    // 🔹 Listar mascotas de un usuario
     @GetMapping("/usuario/{usuarioId}")
     public List<Mascota> mascotasPorUsuario(@PathVariable Long usuarioId) {
         return mascotaRepository.findByUsuarioId(usuarioId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminarMascota(@PathVariable Long id) {
+        mascotaRepository.deleteById(id);
     }
 }

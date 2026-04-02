@@ -26,6 +26,24 @@ public class ReservaController {
         Mascota mascota = mascotaRepository.findById(mascotaId)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
 
+        if (reserva.getFechaInicio() == null || reserva.getFechaFin() == null) {
+            throw new RuntimeException("Las fechas son obligatorias");
+        }
+
+        if (reserva.getFechaInicio().isAfter(reserva.getFechaFin())) {
+            throw new RuntimeException("La fecha de inicio no puede ser posterior a la fecha de fin");
+        }
+
+        List<Reserva> solapadas = reservaRepository.buscarReservasSolapadas(
+                mascotaId,
+                reserva.getFechaInicio(),
+                reserva.getFechaFin()
+        );
+
+        if (!solapadas.isEmpty()) {
+            throw new RuntimeException("Ya existe una reserva para esa mascota en esas fechas");
+        }
+
         reserva.setMascota(mascota);
         return reservaRepository.save(reserva);
     }

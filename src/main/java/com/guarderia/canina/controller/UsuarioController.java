@@ -2,15 +2,12 @@ package com.guarderia.canina.controller;
 
 import com.guarderia.canina.model.Usuario;
 import com.guarderia.canina.repository.UsuarioRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
@@ -27,5 +24,10 @@ public class UsuarioController {
     @PostMapping
     public Usuario crearUsuario(@RequestBody Usuario usuario) {
         return usuarioRepository.save(usuario);
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminarUsuario(@PathVariable Long id) {
+        usuarioRepository.deleteById(id);
     }
 }

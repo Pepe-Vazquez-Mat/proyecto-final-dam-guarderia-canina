@@ -1,4 +1,4 @@
-const API_URL = "/api/reservas";
+const API_URL = "/api/cliente-reservas";
 const API_MASCOTAS = "/api/mascotas";
 
 const listaReservas = document.getElementById("listaReservas");
@@ -22,11 +22,18 @@ formReserva.addEventListener("submit", async (e) => {
     const fechaInicio = document.getElementById("fechaInicio").value;
     const fechaFin = document.getElementById("fechaFin").value;
     const tipoEstancia = document.getElementById("tipoEstancia").value;
-    const precioTotal = parseFloat(document.getElementById("precioTotal").value);
+    const precioTotalTexto = document.getElementById("precioTotal").value;
     const estadoReserva = document.getElementById("estadoReserva").value;
+
+    const precioTotal = precioTotalTexto ? parseFloat(precioTotalTexto) : null;
 
     if (!mascotaId) {
         mostrarMensaje("Debes seleccionar una mascota", "error");
+        return;
+    }
+
+    if (!fechaInicio || !fechaFin) {
+        mostrarMensaje("Debes indicar fecha de inicio y fecha de fin", "error");
         return;
     }
 
@@ -35,12 +42,17 @@ formReserva.addEventListener("submit", async (e) => {
         return;
     }
 
+    if (precioTotal !== null && precioTotal < 0) {
+        mostrarMensaje("El precio no puede ser negativo", "error");
+        return;
+    }
+
     const nuevaReserva = {
-        fechaInicio: fechaInicio,
-        fechaFin: fechaFin,
-        tipoEstancia: tipoEstancia,
-        precioTotal: precioTotal,
-        estadoReserva: estadoReserva
+        fechaInicio,
+        fechaFin,
+        tipoEstancia,
+        precioTotal,
+        estadoReserva
     };
 
     try {
@@ -125,6 +137,7 @@ async function cargarReservas() {
                         ${reserva.estadoReserva ?? "No indicado"}
                     </span>
                 </p>
+                <button onclick="eliminarReserva(${reserva.id})">Eliminar reserva</button>
             `;
 
             listaReservas.appendChild(card);
@@ -132,6 +145,29 @@ async function cargarReservas() {
 
     } catch (error) {
         listaReservas.innerHTML = `<p style="color:red;">${error.message}</p>`;
+    }
+}
+
+async function eliminarReserva(id) {
+    if (!confirm("¿Seguro que quieres eliminar esta reserva?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        });
+
+        if (!response.ok) {
+            const errorTexto = await response.text();
+            throw new Error(errorTexto || "Error al eliminar la reserva");
+        }
+
+        mostrarMensaje("Reserva eliminada correctamente", "ok");
+        cargarReservas();
+
+    } catch (error) {
+        mostrarMensaje("Error al eliminar: " + error.message, "error");
     }
 }
 
