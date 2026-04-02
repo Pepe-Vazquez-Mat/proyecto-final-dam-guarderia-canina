@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Guardería Canina</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #1f4f82;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 25px auto;
+            padding: 20px;
+        }
+
+        .bloque {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1f4f82;
+        }
+
+        form {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, select, textarea, button {
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: #1f4f82;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #16395f;
+        }
+
+        .btn-danger {
+            background: #b42318;
+        }
+
+        .btn-danger:hover {
+            background: #8f1c13;
+        }
+
+        .mensaje {
+            margin: 10px 0 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .ok {
+            background: #e7f6ec;
+            color: #167c3b;
+            border: 1px solid #b7e1c3;
+        }
+
+        .error {
+            background: #fdecec;
+            color: #b42318;
+            border: 1px solid #f3b7b7;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef3f8;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .estado {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .pendiente {
+            background: #fff4cc;
+            color: #8a6d00;
+        }
+
+        .confirmada {
+            background: #dff6e5;
+            color: #1d6b36;
+        }
+
+        .cancelada {
+            background: #fde2e2;
+            color: #9f1d1d;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Panel de Administración - Guardería Canina</h1>
+</header>
+
+<main>
+
+    <!-- USUARIOS -->
+    <section class="bloque">
+        <h2>Usuarios</h2>
+
+        <form id="formUsuario">
+            <input type="text" id="nombreUsuario" placeholder="Nombre" required>
+            <input type="text" id="apellidosUsuario" placeholder="Apellidos">
+            <input type="email" id="emailUsuario" placeholder="Email" required>
+            <input type="text" id="telefonoUsuario" placeholder="Teléfono">
+            <input type="text" id="direccionUsuario" placeholder="Dirección">
+            <button type="submit">Crear usuario</button>
+        </form>
+
+        <div id="mensajeUsuario" class="mensaje"></div>
+
+        <button type="button" onclick="cargarUsuarios()">Actualizar usuarios</button>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="tablaUsuarios"></tbody>
+        </table>
+    </section>
+
+    <!-- MASCOTAS -->
+    <section class="bloque">
+        <h2>Mascotas</h2>
+
+        <form id="formMascota">
+            <input type="number" id="usuarioIdMascota" placeholder="ID del usuario propietario" required>
+            <input type="text" id="nombreMascota" placeholder="Nombre de la mascota" required>
+            <input type="text" id="razaMascota" placeholder="Raza">
+            <input type="number" step="0.01" id="pesoMascota" placeholder="Peso (kg)">
+            <input type="number" id="edadMascota" placeholder="Edad (años)">
+            <textarea id="observacionesMascota" placeholder="Observaciones"></textarea>
+            <button type="submit">Crear mascota</button>
+        </form>
+
+        <div id="mensajeMascota" class="mensaje"></div>
+
+        <button type="button" onclick="cargarMascotas()">Actualizar mascotas</button>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Raza</th>
+                <th>Peso</th>
+                <th>Edad</th>
+                <th>Observaciones</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="tablaMascotas"></tbody>
+        </table>
+    </section>
+
+    <!-- RESERVAS -->
+    <section class="bloque">
+        <h2>Reservas</h2>
+
+        <form id="formReserva">
+            <select id="mascotaId" required>
+                <option value="">Selecciona una mascota</option>
+            </select>
+
+            <input type="date" id="fechaInicio" required>
+            <input type="date" id="fechaFin" required>
+
+            <input type="text" id="tipoEstancia" placeholder="Tipo de estancia">
+            <input type="number" step="0.01" id="precioTotal" placeholder="Precio total">
+            <select id="estadoReserva">
+                <option value="">Selecciona estado</option>
+                <option value="PENDIENTE">PENDIENTE</option>
+                <option value="CONFIRMADA">CONFIRMADA</option>
+                <option value="CANCELADA">CANCELADA</option>
+            </select>
+
+            <button type="submit">Crear reserva</button>
+        </form>
+
+        <div id="mensajeReserva" class="mensaje"></div>
+
+        <button type="button" onclick="cargarReservas()">Actualizar reservas</button>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mascota</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Tipo estancia</th>
+                <th>Precio total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="tablaReservas"></tbody>
+        </table>
+    </section>
+
+</main>
+
+<script>
+    const API_USUARIOS = "http://localhost:8081/api/usuarios";
+    const API_MASCOTAS = "http://localhost:8081/api/mascotas";
+    const API_RESERVAS = "http://localhost:8081/api/cliente-reservas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarUsuarios();
+        cargarMascotas();
+        cargarMascotasEnSelect();
+        cargarReservas();
+    });
+
+    // =========================
+    // UTILIDADES
+    // =========================
+    function mostrarMensaje(id, texto, tipo) {
+        const caja = document.getElementById(id);
+        caja.textContent = texto;
+        caja.className = "mensaje " + tipo;
+    }
+
+    function limpiarMensaje(id) {
+        const caja = document.getElementById(id);
+        caja.textContent = "";
+        caja.className = "mensaje";
+    }
+
+    function formatearPrecio(precio) {
+        if (precio === null || precio === undefined || precio === "") return "No indicado";
+        return precio + " €";
+    }
+
+    function obtenerClaseEstado(estado) {
+        if (!estado) return "";
+        const texto = estado.toLowerCase();
+
+        if (texto === "pendiente") return "pendiente";
+        if (texto === "confirmada") return "confirmada";
+        if (texto === "cancelada") return "cancelada";
+
+        return "";
+    }
+
+    // =========================
+    // USUARIOS
+    // =========================
+    async function cargarUsuarios() {
+        try {
+            const res = await fetch(API_USUARIOS);
+            if (!res.ok) throw new Error("No se pudieron cargar los usuarios");
+
+            const usuarios = await res.json();
+            const tabla = document.getElementById("tablaUsuarios");
+            tabla.innerHTML = "";
+
+            usuarios.forEach(u => {
+                tabla.innerHTML += `
+                    <tr>
+                        <td>${u.id ?? ""}</td>
+                        <td>${u.nombre ?? ""}</td>
+                        <td>${u.apellidos ?? ""}</td>
+                        <td>${u.email ?? ""}</td>
+                        <td>${u.telefono ?? ""}</td>
+                        <td>${u.direccion ?? ""}</td>
+                        <td class="acciones">
+                            <button class="btn-danger" onclick="eliminarUsuario(${u.id})">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            mostrarMensaje("mensajeUsuario", "Error cargando usuarios: " + error.message, "error");
+        }
+    }
+
+    document.getElementById("formUsuario").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        limpiarMensaje("mensajeUsuario");
+
+        const usuario = {
+            nombre: document.getElementById("nombreUsuario").value.trim(),
+            apellidos: document.getElementById("apellidosUsuario").value.trim(),
+            email: document.getElementById("emailUsuario").value.trim(),
+            telefono: document.getElementById("telefonoUsuario").value.trim(),
+            direccion: document.getElementById("direccionUsuario").value.trim()
+        };
+
+        if (!usuario.nombre) {
+            mostrarMensaje("mensajeUsuario", "El nombre es obligatorio", "error");
+            return;
+        }
+
+        if (!usuario.email) {
+            mostrarMensaje("mensajeUsuario", "El email es obligatorio", "error");
+            return;
+        }
+
+        try {
+            const res = await fetch(API_USUARIOS, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(usuario)
+            });
+
+            if (!res.ok) {
+                const errorTexto = await res.text();
+                throw new Error(errorTexto || "Error al crear usuario");
+            }
+
+            mostrarMensaje("mensajeUsuario", "Usuario creado correctamente", "ok");
+            document.getElementById("formUsuario").reset();
+            cargarUsuarios();
+
+        } catch (error) {
+            mostrarMensaje("mensajeUsuario", "Error al crear usuario: " + error.message, "error");
+        }
+    });
+
+    async function eliminarUsuario(id) {
+        if (!confirm("¿Seguro que quieres eliminar este usuario?")) return;
+
+        try {
+            const res = await fetch(`${API_USUARIOS}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                const errorTexto = await res.text();
+                throw new Error(errorTexto || "No se pudo eliminar el usuario");
+            }
+
+            mostrarMensaje("mensajeUsuario", "Usuario eliminado correctamente", "ok");
+            cargarUsuarios();
+        } catch (error) {
+            mostrarMensaje("mensajeUsuario", "Error al eliminar usuario: " + error.message, "error");
+        }
+    }
+
+    // =========================
+    // MASCOTAS
+    // =========================
+    async function cargarMascotas() {
+        try {
+            const res = await fetch(API_MASCOTAS);
+            if (!res.ok) throw new Error("No se pudieron cargar las mascotas");
+
+            const mascotas = await res.json();
+            const tabla = document.getElementById("tablaMascotas");
+            tabla.innerHTML = "";
+
+            mascotas.forEach(m => {
+                tabla.innerHTML += `
+                    <tr>
+                        <td>${m.id ?? ""}</td>
+                        <td>${m.nombre ?? ""}</td>
+                        <td>${m.raza ?? ""}</td>
+                        <td>${m.pesoKg ?? ""}</td>
+                        <td>${m.edadAnios ?? ""}</td>
+                        <td>${m.observaciones ?? ""}</td>
+                        <td>${m.usuario?.nombre ?? m.usuario?.id ?? ""}</td>
+                        <td class="acciones">
+                            <button class="btn-danger" onclick="eliminarMascota(${m.id})">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+        } catch (error) {
+            mostrarMensaje("mensajeMascota", "Error cargando mascotas: " + error.message, "error");
+        }
+    }
+
+    document.getElementById("formMascota").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        limpiarMensaje("mensajeMascota");
+
+        const usuarioId = document.getElementById("usuarioIdMascota").value;
+        const peso = document.getElementById("pesoMascota").value;
+        const edad = document.getElementById("edadMascota").value;
+
+        const mascota = {
+            nombre: document.getElementById("nombreMascota").value.trim(),
+            raza: document.getElementById("razaMascota").value.trim(),
+            pesoKg: peso ? parseFloat(peso) : null,
+            edadAnios: edad ? parseInt(edad) : null,
+            observaciones: document.getElementById("observacionesMascota").value.trim()
+        };
+
+        if (!usuarioId) {
+            mostrarMensaje("mensajeMascota", "Debes indicar el ID del usuario", "error");
+            return;
+        }
+
+        if (!mascota.nombre) {
+            mostrarMensaje("mensajeMascota", "El nombre de la mascota es obligatorio", "error");
+            return;
+        }
+
+        if (mascota.pesoKg !== null && mascota.pesoKg < 0) {
+            mostrarMensaje("mensajeMascota", "El peso no puede ser negativo", "error");
+            return;
+        }
+
+        if (mascota.edadAnios !== null && mascota.edadAnios < 0) {
+            mostrarMensaje("mensajeMascota", "La edad no puede ser negativa", "error");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_MASCOTAS}/usuario/${usuarioId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(mascota)
+            });
+
+            if (!res.ok) {
+                const errorTexto = await res.text();
+                throw new Error(errorTexto || "Error al crear mascota");
+            }
+
+            mostrarMensaje("mensajeMascota", "Mascota creada correctamente", "ok");
+            document.getElementById("formMascota").reset();
+            cargarMascotas();
+            cargarMascotasEnSelect();
+
+        } catch (error) {
+            mostrarMensaje("mensajeMascota", "Error al crear mascota: " + error.message, "error");
+        }
+    });
+
+    async function eliminarMascota(id) {
+        if (!confirm("¿Seguro que quieres eliminar esta mascota?")) return;
+
+        try {
+            const res = await fetch(`${API_MASCOTAS}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                const errorTexto = await res.text();
+                throw new Error(errorTexto || "No se pudo eliminar la mascota");
+            }
+
+            mostrarMensaje("mensajeMascota", "Mascota eliminada correctamente", "ok");
+            cargarMascotas();
+            cargarMascotasEnSelect();
+
+        } catch (error) {
+            mostrarMensaje("mensajeMascota", "Error al eliminar mascota: " + error.message, "error");
+        }
+    }
+
+    async function cargarMascotasEnSelect() {
+        try {
+            const res = await fetch(API_MASCOTAS);
+            if (!res.ok) throw new Error("No se pudieron cargar las mascotas");
+
+            const mascotas = await res.json();
+            const selectMascota = document.getElementById("mascotaId");
+            selectMascota.innerHTML = `<option value="">Selecciona una mascota</option>`;
+
+            mascotas.forEach(mascota => {
+                const option = document.createElement("option");
+                option.value = mascota.id;
+                option.textContent = `${mascota.id} - ${mascota.nombre}`;
+                selectMascota.appendChild(option);
+            });
+
+        } catch (error) {
+            mostrarMensaje("mensajeReserva", "Error cargando mascotas en selector: " + error.message, "error");
+        }
+    }
+
+    // =========================
+    // RESERVAS
+    // =========================
+    async function cargarReservas() {
+        try {
+            const res = await fetch(API_RESERVAS);
+            if (!res.ok) throw new Error("No se pudieron cargar las reservas");
+
+            const reservas = await res.json();
+            const tabla = document.getElementById("tablaReservas");
+            tabla.innerHTML = "";
+
+            reservas.forEach(r => {
+                tabla.innerHTML += `
+                    <tr>
+                        <td>${r.id ?? ""}</td>
+                        <td>${r.mascota?.nombre ?? r.mascota?.id ?? ""}</td>
+                        <td>${r.fechaInicio ?? ""}</td>
+                        <td>${r.fechaFin ?? ""}</td>
+                        <td>${r.tipoEstancia ?? ""}</td>
+                        <td>${formatearPrecio(r.precioTotal)}</td>
+                        <td>
+                            <span class="estado ${obtenerClaseEstado(r.estadoReserva)}">
+                                ${r.estadoReserva ?? ""}
+                            </span>
+                        </td>
+                        <td class="acciones">
+                            <button class="btn-danger" onclick="eliminarReserva(${r.id})">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+        } catch (error) {
+            mostrarMensaje("mensajeReserva", "Error cargando reservas: " + error.message, "error");
+        }
+    }
+
+    document.getElementById("formReserva").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        limpiarMensaje("mensajeReserva");
+
+        const mascotaId = parseInt(document.getElementById("mascotaId").value);
+        const fechaInicio = document.getElementById("fechaInicio").value;
+        const fechaFin = document.getElementById("fechaFin").value;
+        const tipoEstancia = document.getElementById("tipoEstancia").value.trim();
+        const estadoReserva = document.getElementById("estadoReserva").value;
+        const precioTexto = document.getElementById("precioTotal").value;
+
+        const precioTotal = precioTexto ? parseFloat(precioTexto) : null;
+
+        if (!mascotaId) {
+            mostrarMensaje("mensajeReserva", "Debes seleccionar una mascota", "error");
+            return;
+        }
+
+        if (!fechaInicio || !fechaFin) {
+            mostrarMensaje("mensajeReserva", "Debes indicar fecha de inicio y fecha de fin", "error");
+            return;
+        }
+
+        if (fechaFin < fechaInicio) {
+            mostrarMensaje("mensajeReserva", "La fecha fin no puede ser menor que la fecha inicio", "error");
+            return;
+        }
+
+        if (precioTotal !== null && precioTotal < 0) {
+            mostrarMensaje("mensajeReserva", "El precio no puede ser negativo", "error");
+            return;
+        }
+
+        const nuevaReserva = {
+            fechaInicio,
+            fechaFin,
+            tipoEstancia,
+            precioTotal,
+            estadoReserva
+        };
+
+        try {
+            const res = await fetch(`${API_RESERVAS}/mascota/${mascotaId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(nuevaReserva)
+            });
+
+            if (!res.ok) {
+                const errorTexto = await res.text();
+                throw new Error(errorTexto || "Error al crear reserva");
+            }
+
+            mostrarMensaje("mensajeReserva", "Reserva creada correctamente", "ok");
+            document.getElementById("formReserva").reset();
+            cargarReservas();
+
+        } catch (error) {
+            mostrarMensaje("mensajeReserva", "Error al crear reserva: " + error.message, "error");
+        }
+    });
+
+    async function eliminarReserva(id) {
+        if (!confirm("¿Seguro que quieres eliminar esta reserva?")) return;
+
+        try {
+            const res = await fetch(`${API_RESERVAS}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                const errorTexto = await res.text();
+                throw new Error(errorTexto || "No se pudo eliminar la reserva");
+            }
+
+            mostrarMensaje("mensajeReserva", "Reserva eliminada correctamente", "ok");
+            cargarReservas();
+
+        } catch (error) {
+            mostrarMensaje("mensajeReserva", "Error al eliminar reserva: " + error.message, "error");
+        }
+    }
+</script>
+
+</body>
+</html>
