@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - Guardería Canina</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="container">
+        <h1>Guardería Canina</h1>
+        <nav class="nav">
+            <a href="/index.html">Inicio</a>
+            <a href="/reservas.html" class="activo">Reservas</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <section class="panel">
+        <h2>Nueva reserva</h2>
+
+        <form id="formReserva" class="formulario">
+            <div class="form-group">
+                <label for="mascotaId">Mascota</label>
+                <select id="mascotaId" required>
+                    <option value="">Selecciona una mascota</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaInicio">Fecha inicio</label>
+                <input type="date" id="fechaInicio" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaFin">Fecha fin</label>
+                <input type="date" id="fechaFin" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tipoEstancia">Tipo de estancia</label>
+                <select id="tipoEstancia" required>
+                    <option value="">Selecciona una opción</option>
+                    <option value="guarderia">Guardería</option>
+                    <option value="larga">Larga estancia</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="precioTotal">Precio total</label>
+                <input type="number" id="precioTotal" step="0.01" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="estadoReserva">Estado de reserva</label>
+                <select id="estadoReserva">
+                    <option value="">Selecciona una opción</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmada">Confirmada</option>
+                    <option value="cancelada">Cancelada</option>
+                </select>
+            </div>
+
+            <div class="form-actions full">
+                <button type="submit" class="btn">Guardar reserva</button>
+                <button type="reset" class="btn btn-secundario">Limpiar</button>
+            </div>
+        </form>
+
+        <p id="mensaje" class="mensaje"></p>
+    </section>
+
+    <section class="panel">
+        <div class="cabecera-listado">
+            <h2>Listado de reservas</h2>
+            <button id="btnRecargar" class="btn">Recargar</button>
+        </div>
+
+        <div id="listaReservas" class="grid-reservas">
+            <p>Cargando reservas...</p>
+        </div>
+    </section>
+</main>
+
+<script src="/js/reservas.js"></script>
+</body>
+</html>
