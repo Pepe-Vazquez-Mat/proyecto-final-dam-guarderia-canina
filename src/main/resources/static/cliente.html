@@ -4,293 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cliente | Guardería Canina Huellas Felices</title>
-    <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          font-family: Arial, Helvetica, sans-serif;
-        }
-
-        body {
-          background-color: #f4f7fb;
-          color: #1f2937;
-          line-height: 1.5;
-        }
-
-        header {
-          background: linear-gradient(135deg, #1d4ed8, #2563eb);
-          color: white;
-          padding: 20px 40px;
-          box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-        }
-
-        .topbar {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 15px;
-        }
-
-        .logo {
-          font-size: 1.8rem;
-          font-weight: bold;
-        }
-
-        .logo span {
-          color: #fde68a;
-        }
-
-        nav ul {
-          list-style: none;
-          display: flex;
-          gap: 20px;
-          flex-wrap: wrap;
-        }
-
-        nav a {
-          text-decoration: none;
-          color: white;
-          font-weight: bold;
-          transition: 0.3s;
-        }
-
-        nav a:hover {
-          color: #fde68a;
-        }
-
-        .hero {
-          max-width: 1200px;
-          margin: 30px auto;
-          display: grid;
-          grid-template-columns: 1.2fr 1fr;
-          gap: 30px;
-          align-items: center;
-          padding: 0 20px;
-        }
-
-        .hero-text h1 {
-          font-size: 2.4rem;
-          margin-bottom: 15px;
-          color: #111827;
-        }
-
-        .hero-text p {
-          font-size: 1.05rem;
-          margin-bottom: 20px;
-          color: #374151;
-        }
-
-        .hero-text .btn {
-          display: inline-block;
-          background-color: #2563eb;
-          color: white;
-          padding: 12px 22px;
-          border-radius: 10px;
-          text-decoration: none;
-          font-weight: bold;
-          transition: 0.3s;
-        }
-
-        .hero-text .btn:hover {
-          background-color: #1d4ed8;
-        }
-
-        .hero-image {
-          background-color: white;
-          border-radius: 18px;
-          padding: 20px;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-          text-align: center;
-        }
-
-        .hero-image img {
-          width: 100%;
-          max-width: 420px;
-          border-radius: 16px;
-        }
-
-        section {
-          max-width: 1200px;
-          margin: 40px auto;
-          padding: 0 20px;
-        }
-
-        .section-title {
-          font-size: 2rem;
-          margin-bottom: 20px;
-          color: #111827;
-          text-align: center;
-        }
-
-        .services {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 20px;
-        }
-
-        .card {
-          background-color: white;
-          padding: 22px;
-          border-radius: 16px;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-          transition: transform 0.25s ease;
-        }
-
-        .card:hover {
-          transform: translateY(-5px);
-        }
-
-        .card h3 {
-          margin-bottom: 12px;
-          color: #1d4ed8;
-        }
-
-        .card p {
-          color: #4b5563;
-          font-size: 0.96rem;
-        }
-
-        .form-container {
-          background-color: white;
-          border-radius: 18px;
-          padding: 30px;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-          max-width: 950px;
-          margin: 0 auto;
-        }
-
-        .form-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 18px;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .form-group.full {
-          grid-column: 1 / -1;
-        }
-
-        label {
-          margin-bottom: 8px;
-          font-weight: bold;
-          color: #1f2937;
-        }
-
-        input, select, textarea {
-          padding: 12px;
-          border: 1px solid #cbd5e1;
-          border-radius: 10px;
-          outline: none;
-          font-size: 0.95rem;
-          transition: 0.2s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-          border-color: #2563eb;
-          box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
-        }
-
-        textarea {
-          resize: vertical;
-          min-height: 100px;
-        }
-
-        .extras {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 15px;
-          margin-top: 5px;
-        }
-
-        .extras label {
-          font-weight: normal;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: #eff6ff;
-          padding: 10px 14px;
-          border-radius: 10px;
-          cursor: pointer;
-        }
-
-        .price-box {
-          margin-top: 25px;
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
-          border-radius: 14px;
-          padding: 18px;
-        }
-
-        .price-box h3 {
-          margin-bottom: 10px;
-          color: #1d4ed8;
-        }
-
-        .total {
-          font-size: 1.5rem;
-          font-weight: bold;
-          color: #111827;
-        }
-
-        .submit-btn {
-          margin-top: 25px;
-          width: 100%;
-          padding: 14px;
-          border: none;
-          background-color: #2563eb;
-          color: white;
-          font-size: 1rem;
-          font-weight: bold;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: 0.3s;
-        }
-
-        .submit-btn:hover {
-          background-color: #1d4ed8;
-        }
-
-        .message {
-          margin-top: 18px;
-          padding: 14px;
-          border-radius: 10px;
-          display: none;
-          font-weight: bold;
-        }
-
-        .message.success {
-          background-color: #dcfce7;
-          color: #166534;
-          border: 1px solid #86efac;
-          display: block;
-        }
-
-        footer {
-          margin-top: 50px;
-          background-color: #111827;
-          color: white;
-          text-align: center;
-          padding: 25px 20px;
-        }
-
-        @media (max-width: 900px) {
-          .hero {
-            grid-template-columns: 1fr;
-          }
-
-          .form-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/cliente.css">
 </head>
 <body>
 
@@ -320,7 +35,10 @@
         </div>
 
         <div class="hero-image">
-            <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80" alt="Perro feliz en guardería canina">
+            <img
+                    src="https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80"
+                    alt="Perro feliz en guardería canina"
+            >
         </div>
     </section>
 
@@ -413,16 +131,28 @@
 
                     <div class="form-group">
                         <label for="dias">Número de días</label>
-                        <input type="number" id="dias" min="1" value="1" required>
+                        <input type="number" id="dias" min="1" value="1" readonly>
                     </div>
 
                     <div class="form-group full">
                         <label>Extras</label>
                         <div class="extras">
-                            <label><input type="checkbox" class="extra" value="8"> Baño (+8€)</label>
-                            <label><input type="checkbox" class="extra" value="12"> Peluquería (+12€)</label>
-                            <label><input type="checkbox" class="extra" value="10"> Recogida a domicilio (+10€)</label>
-                            <label><input type="checkbox" class="extra" value="10"> Entrega a domicilio (+10€)</label>
+                            <label>
+                                <input type="checkbox" id="extraBano" class="extra" value="8">
+                                Baño (+8€)
+                            </label>
+                            <label>
+                                <input type="checkbox" id="extraPeluqueria" class="extra" value="12">
+                                Peluquería (+12€)
+                            </label>
+                            <label>
+                                <input type="checkbox" id="extraRecogida" class="extra" value="10">
+                                Recogida a domicilio (+10€)
+                            </label>
+                            <label>
+                                <input type="checkbox" id="extraEntrega" class="extra" value="10">
+                                Entrega a domicilio (+10€)
+                            </label>
                         </div>
                     </div>
 
@@ -435,14 +165,12 @@
                 <div class="price-box">
                     <h3>Resumen del importe</h3>
                     <p>Total estimado:</p>
-                    <p class="total" id="totalPrecio">0 €</p>
+                    <p class="total" id="totalPrecio">0.00 €</p>
                 </div>
 
                 <button type="submit" class="submit-btn">Enviar solicitud</button>
 
-                <div id="mensajeOk" class="message">
-                    Reserva enviada correctamente. Hemos recibido tu solicitud.
-                </div>
+                <div id="mensajeOk" class="message"></div>
             </form>
         </div>
     </section>
@@ -452,105 +180,7 @@
     <p>&copy; 2026 Guardería Canina Huellas Felices - Proyecto DAM</p>
 </footer>
 
-<script>
-    const tipoEstancia = document.getElementById("tipoEstancia");
-    const fechaInicio = document.getElementById("fechaInicio");
-    const fechaFin = document.getElementById("fechaFin");
-    const extras = document.querySelectorAll(".extra");
-    const totalPrecio = document.getElementById("totalPrecio");
-    const formReserva = document.getElementById("formReserva");
-    const mensajeOk = document.getElementById("mensajeOk");
-
-    function calcularDias() {
-      if (!fechaInicio.value || !fechaFin.value) return 0;
-
-      const inicio = new Date(fechaInicio.value);
-      const fin = new Date(fechaFin.value);
-
-      const diferenciaMs = fin - inicio;
-      const dias = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
-
-      return dias <= 0 ? 1 : dias;
-    }
-
-    function calcularTotal() {
-      let precioBase = 0;
-
-      if (tipoEstancia.value === "DIA") {
-        precioBase = 20;
-      } else if (tipoEstancia.value === "LARGA_ESTANCIA") {
-        precioBase = 35;
-      }
-
-      const numeroDias = calcularDias();
-
-      let totalExtras = 0;
-      extras.forEach(extra => {
-        if (extra.checked) {
-          totalExtras += Number(extra.value);
-        }
-      });
-
-      const total = (precioBase * numeroDias) + totalExtras;
-      totalPrecio.textContent = total.toFixed(2) + " €";
-    }
-
-    tipoEstancia.addEventListener("change", calcularTotal);
-    fechaInicio.addEventListener("change", calcularTotal);
-    fechaFin.addEventListener("change", calcularTotal);
-    extras.forEach(extra => extra.addEventListener("change", calcularTotal));
-
-    formReserva.addEventListener("submit", async function(e) {
-      e.preventDefault();
-
-      const datos = {
-        nombreCliente: document.getElementById("nombreCliente").value,
-        apellidosCliente: document.getElementById("apellidosCliente").value,
-        email: document.getElementById("email").value,
-        telefono: document.getElementById("telefono").value,
-        nombreMascota: document.getElementById("nombreMascota").value,
-        raza: document.getElementById("raza").value,
-        edad: document.getElementById("edad").value ? Number(document.getElementById("edad").value) : null,
-        peso: document.getElementById("peso").value ? Number(document.getElementById("peso").value) : null,
-        fechaInicio: document.getElementById("fechaInicio").value,
-        fechaFin: document.getElementById("fechaFin").value,
-        tipoEstancia: document.getElementById("tipoEstancia").value,
-        observaciones: document.getElementById("observaciones").value,
-        bano: extras[0].checked,
-        peluqueria: extras[1].checked,
-        recogida: extras[2].checked,
-        entrega: extras[3].checked
-      };
-
-      try {
-        const respuesta = await fetch("/api/cliente-reservas", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(datos)
-        });
-
-        if (!respuesta.ok) {
-          throw new Error("Error al guardar la reserva");
-        }
-
-        mensajeOk.textContent = "Reserva enviada correctamente. Hemos recibido tu solicitud.";
-        mensajeOk.className = "message success";
-        mensajeOk.style.display = "block";
-
-        formReserva.reset();
-        totalPrecio.textContent = "0 €";
-
-      } catch (error) {
-        mensajeOk.textContent = "Hubo un error al enviar la reserva.";
-        mensajeOk.className = "message";
-        mensajeOk.style.display = "block";
-        mensajeOk.style.backgroundColor = "#fee2e2";
-        mensajeOk.style.color = "#991b1b";
-        mensajeOk.style.border = "1px solid #fca5a5";
-      }
-    });
-</script>
+<script src="/js/api.js"></script>
+<script src="/js/cliente.js"></script>
 </body>
 </html>

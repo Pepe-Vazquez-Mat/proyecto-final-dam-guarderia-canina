@@ -1,6 +1,6 @@
 package com.guarderia.canina.controller;
 
-import com.guarderia.canina.dto.ReservaRequest;
+import dto.ReservaRequest;
 import com.guarderia.canina.model.Mascota;
 import com.guarderia.canina.model.Reserva;
 import com.guarderia.canina.model.Usuario;
