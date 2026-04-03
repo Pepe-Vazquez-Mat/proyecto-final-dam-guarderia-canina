@@ -97,8 +97,8 @@ public class ClienteReservaController {
 
         Reserva reserva = new Reserva();
         reserva.setMascota(mascota);
-        reserva.setFechaInicio(fechaInicio);
-        reserva.setFechaFin(fechaFin);
+        reserva.setFechaEntrada(fechaInicio);
+        reserva.setFechaSalida(fechaFin);
         reserva.setTipoEstancia(request.getTipoEstancia());
         reserva.setPrecioTotal(total);
         reserva.setEstadoReserva("PENDIENTE");

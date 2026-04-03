@@ -4,12 +4,14 @@ import com.guarderia.canina.model.Mascota;
 import com.guarderia.canina.model.Reserva;
 import com.guarderia.canina.repository.MascotaRepository;
 import com.guarderia.canina.repository.ReservaRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cliente-reservas")
+@CrossOrigin(origins = "*")
 public class ReservaController {
 
     private final ReservaRepository reservaRepository;
@@ -21,51 +23,40 @@ public class ReservaController {
         this.mascotaRepository = mascotaRepository;
     }
 
+    @GetMapping("/mascota/{mascotaId}")
+    public ResponseEntity<List<Reserva>> obtenerReservasPorMascota(@PathVariable Long mascotaId) {
+        List<Reserva> reservas = reservaRepository.findByMascotaId(mascotaId);
+        return ResponseEntity.ok(reservas);
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Reserva>> obtenerReservasPorUsuario(@PathVariable Long usuarioId) {
+        List<Reserva> reservas = reservaRepository.findByMascotaUsuarioId(usuarioId);
+        return ResponseEntity.ok(reservas);
+    }
+
     @PostMapping("/mascota/{mascotaId}")
-    public Reserva crearReserva(@PathVariable Long mascotaId, @RequestBody Reserva reserva) {
+    public ResponseEntity<?> crearReserva(@PathVariable Long mascotaId, @RequestBody Reserva reserva) {
         Mascota mascota = mascotaRepository.findById(mascotaId)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
 
-        if (reserva.getFechaInicio() == null || reserva.getFechaFin() == null) {
-            throw new RuntimeException("Las fechas son obligatorias");
-        }
-
-        if (reserva.getFechaInicio().isAfter(reserva.getFechaFin())) {
-            throw new RuntimeException("La fecha de inicio no puede ser posterior a la fecha de fin");
-        }
-
-        List<Reserva> solapadas = reservaRepository.buscarReservasSolapadas(
-                mascotaId,
-                reserva.getFechaInicio(),
-                reserva.getFechaFin()
-        );
-
-        if (!solapadas.isEmpty()) {
-            throw new RuntimeException("Ya existe una reserva para esa mascota en esas fechas");
-        }
-
+        reserva.setId(null);
         reserva.setMascota(mascota);
-        return reservaRepository.save(reserva);
+
+        if (reserva.getEstadoReserva() == null || reserva.getEstadoReserva().isBlank()) {
+            reserva.setEstadoReserva("PENDIENTE");
+        }
+
+        Reserva nuevaReserva = reservaRepository.save(reserva);
+        return ResponseEntity.ok(nuevaReserva);
     }
 
-    @GetMapping
-    public List<Reserva> listarReservas() {
-        return reservaRepository.findAll();
-    }
-
-    @GetMapping("/mascota/{mascotaId}")
-    public List<Reserva> reservasPorMascota(@PathVariable Long mascotaId) {
-        return reservaRepository.findByMascotaId(mascotaId);
-    }
-
-    @GetMapping("/{id}")
-    public Reserva obtenerReservaPorId(@PathVariable Long id) {
-        return reservaRepository.findById(id)
+    @DeleteMapping("/{reservaId}")
+    public ResponseEntity<?> eliminarReserva(@PathVariable Long reservaId) {
+        Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
-    }
 
-    @DeleteMapping("/{id}")
-    public void eliminarReserva(@PathVariable Long id) {
-        reservaRepository.deleteById(id);
+        reservaRepository.delete(reserva);
+        return ResponseEntity.ok("Reserva eliminada correctamente.");
     }
 }

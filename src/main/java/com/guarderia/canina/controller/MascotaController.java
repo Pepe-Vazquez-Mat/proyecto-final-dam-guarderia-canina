@@ -4,12 +4,14 @@ import com.guarderia.canina.model.Mascota;
 import com.guarderia.canina.model.Usuario;
 import com.guarderia.canina.repository.MascotaRepository;
 import com.guarderia.canina.repository.UsuarioRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/mascotas")
+@RequestMapping("/api/cliente-mascotas")
+@CrossOrigin(origins = "*")
 public class MascotaController {
 
     private final MascotaRepository mascotaRepository;
@@ -21,30 +23,49 @@ public class MascotaController {
         this.usuarioRepository = usuarioRepository;
     }
 
-    @PostMapping("/usuario/{usuarioId}")
-    public Mascota crearMascota(@PathVariable Long usuarioId,
-                                @RequestBody Mascota mascota) {
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Mascota>> obtenerMascotasPorUsuario(@PathVariable Long usuarioId) {
+        List<Mascota> mascotas = mascotaRepository.findByUsuarioId(usuarioId);
+        return ResponseEntity.ok(mascotas);
+    }
 
+    @PostMapping("/usuario/{usuarioId}")
+    public ResponseEntity<?> crearMascota(@PathVariable Long usuarioId, @RequestBody Mascota mascota) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        mascota.setId(null);
         mascota.setUsuario(usuario);
 
-        return mascotaRepository.save(mascota);
+        Mascota nuevaMascota = mascotaRepository.save(mascota);
+        return ResponseEntity.ok(nuevaMascota);
     }
 
-    @GetMapping
-    public List<Mascota> listarMascotas() {
-        return mascotaRepository.findAll();
+    @PutMapping("/{mascotaId}")
+    public ResponseEntity<?> actualizarMascota(@PathVariable Long mascotaId, @RequestBody Mascota datosActualizados) {
+        Mascota mascota = mascotaRepository.findById(mascotaId)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+
+        mascota.setNombre(datosActualizados.getNombre());
+        mascota.setRaza(datosActualizados.getRaza());
+        mascota.setPesoKg(datosActualizados.getPesoKg());
+        mascota.setEdadAnios(datosActualizados.getEdadAnios());
+        mascota.setObservaciones(datosActualizados.getObservaciones());
+
+        Mascota mascotaActualizada = mascotaRepository.save(mascota);
+        return ResponseEntity.ok(mascotaActualizada);
     }
 
-    @GetMapping("/usuario/{usuarioId}")
-    public List<Mascota> mascotasPorUsuario(@PathVariable Long usuarioId) {
-        return mascotaRepository.findByUsuarioId(usuarioId);
-    }
+    @DeleteMapping("/{mascotaId}")
+    public ResponseEntity<?> eliminarMascota(@PathVariable Long mascotaId) {
+        Mascota mascota = mascotaRepository.findById(mascotaId)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
 
-    @DeleteMapping("/{id}")
-    public void eliminarMascota(@PathVariable Long id) {
-        mascotaRepository.deleteById(id);
+        if (mascota.getReservas() != null && !mascota.getReservas().isEmpty()) {
+            return ResponseEntity.badRequest().body("No se puede eliminar la mascota porque tiene reservas asociadas.");
+        }
+
+        mascotaRepository.delete(mascota);
+        return ResponseEntity.ok("Mascota eliminada correctamente.");
     }
 }

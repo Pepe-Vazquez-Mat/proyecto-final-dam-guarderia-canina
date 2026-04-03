@@ -3,184 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cliente | Guardería Canina Huellas Felices</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/cliente.css">
+    <title>Área Cliente - Guardería Canina</title>
+    <link rel="stylesheet" href="css/cliente.css">
 </head>
 <body>
 
-<header>
-    <div class="topbar">
-        <div class="logo">🐶 Guardería <span>Canina</span></div>
-        <nav>
-            <ul>
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#reserva">Reserva</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
-
-<main>
-    <section class="hero" id="inicio">
-        <div class="hero-text">
-            <h1>Tu perro, cuidado como en casa</h1>
-            <p>
-                En nuestra guardería canina ofrecemos estancias de día y de larga duración,
-                con atención personalizada, alimentación adaptada y extras como baño, peluquería
-                y recogida a domicilio.
-            </p>
-            <a href="#reserva" class="btn">Solicitar reserva</a>
+<div class="contenedor-principal">
+    <header class="topbar">
+        <div>
+            <h1>Guardería Canina</h1>
+            <p id="saludoUsuario">Área privada del cliente</p>
         </div>
+        <button id="btnCerrarSesion" class="btn btn-secundario">Cerrar sesión</button>
+    </header>
 
-        <div class="hero-image">
-            <img
-                    src="https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80"
-                    alt="Perro feliz en guardería canina"
-            >
-        </div>
-    </section>
+    <main class="grid-principal">
 
-    <section id="servicios">
-        <h2 class="section-title">Nuestros servicios</h2>
-        <div class="services">
-            <div class="card">
-                <h3>Estancia de día</h3>
-                <p>Ideal para dejar a tu perro durante el día mientras trabajas o realizas gestiones.</p>
+        <!-- FORMULARIO MASCOTAS -->
+        <section class="card">
+            <div class="card-header">
+                <h2 id="tituloFormularioMascota">Añadir mascota</h2>
+                <p>Gestiona los datos de tus mascotas</p>
             </div>
-            <div class="card">
-                <h3>Larga estancia</h3>
-                <p>Perfecto para vacaciones o ausencias prolongadas. Atención completa y seguimiento.</p>
-            </div>
-            <div class="card">
-                <h3>Recogida y entrega</h3>
-                <p>Servicio opcional de transporte para recoger y devolver tu mascota a domicilio.</p>
-            </div>
-            <div class="card">
-                <h3>Peluquería y baño</h3>
-                <p>Añade servicios de higiene y cuidado estético para que vuelva limpio y feliz.</p>
-            </div>
-        </div>
-    </section>
 
-    <section id="reserva">
-        <h2 class="section-title">Formulario de reserva</h2>
+            <form id="formMascota" class="formulario">
+                <input type="hidden" id="mascotaId">
 
-        <div class="form-container">
-            <form id="formReserva">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="nombreCliente">Nombre del cliente</label>
-                        <input type="text" id="nombreCliente" required>
+                <div class="campo">
+                    <label for="nombreMascota">Nombre</label>
+                    <input type="text" id="nombreMascota" required>
+                </div>
+
+                <div class="campo">
+                    <label for="razaMascota">Raza</label>
+                    <input type="text" id="razaMascota">
+                </div>
+
+                <div class="campo-grid">
+                    <div class="campo">
+                        <label for="pesoMascota">Peso (kg)</label>
+                        <input type="number" id="pesoMascota" step="0.1" min="0">
                     </div>
 
-                    <div class="form-group">
-                        <label for="apellidosCliente">Apellidos</label>
-                        <input type="text" id="apellidosCliente" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Correo electrónico</label>
-                        <input type="email" id="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="telefono">Teléfono</label>
-                        <input type="tel" id="telefono" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nombreMascota">Nombre de la mascota</label>
-                        <input type="text" id="nombreMascota" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="raza">Raza</label>
-                        <input type="text" id="raza">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="edad">Edad</label>
-                        <input type="number" id="edad" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="peso">Peso (kg)</label>
-                        <input type="number" id="peso" min="0" step="0.1">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fechaInicio">Fecha de inicio</label>
-                        <input type="date" id="fechaInicio" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fechaFin">Fecha de fin</label>
-                        <input type="date" id="fechaFin" required>
-                    </div>
-
-                    <div class="form-group full">
-                        <label for="tipoEstancia">Tipo de estancia</label>
-                        <select id="tipoEstancia" required>
-                            <option value="">Selecciona una opción</option>
-                            <option value="DIA">Estancia de día - 20€/día</option>
-                            <option value="LARGA_ESTANCIA">Larga estancia - 35€/día</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="dias">Número de días</label>
-                        <input type="number" id="dias" min="1" value="1" readonly>
-                    </div>
-
-                    <div class="form-group full">
-                        <label>Extras</label>
-                        <div class="extras">
-                            <label>
-                                <input type="checkbox" id="extraBano" class="extra" value="8">
-                                Baño (+8€)
-                            </label>
-                            <label>
-                                <input type="checkbox" id="extraPeluqueria" class="extra" value="12">
-                                Peluquería (+12€)
-                            </label>
-                            <label>
-                                <input type="checkbox" id="extraRecogida" class="extra" value="10">
-                                Recogida a domicilio (+10€)
-                            </label>
-                            <label>
-                                <input type="checkbox" id="extraEntrega" class="extra" value="10">
-                                Entrega a domicilio (+10€)
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group full">
-                        <label for="observaciones">Observaciones</label>
-                        <textarea id="observaciones" placeholder="Alergias, medicación, comportamiento, cuidados especiales..."></textarea>
+                    <div class="campo">
+                        <label for="edadMascota">Edad (años)</label>
+                        <input type="number" id="edadMascota" min="0">
                     </div>
                 </div>
 
-                <div class="price-box">
-                    <h3>Resumen del importe</h3>
-                    <p>Total estimado:</p>
-                    <p class="total" id="totalPrecio">0.00 €</p>
+                <div class="campo">
+                    <label for="observacionesMascota">Observaciones</label>
+                    <textarea id="observacionesMascota" rows="4" placeholder="Alergias, comportamiento, medicación, etc."></textarea>
                 </div>
 
-                <button type="submit" class="submit-btn">Enviar solicitud</button>
-
-                <div id="mensajeOk" class="message"></div>
+                <div class="acciones-formulario">
+                    <button type="submit" class="btn btn-primario" id="btnGuardarMascota">Guardar mascota</button>
+                    <button type="button" class="btn btn-secundario oculto" id="btnCancelarEdicion">Cancelar edición</button>
+                </div>
             </form>
-        </div>
-    </section>
-</main>
 
-<footer>
-    <p>&copy; 2026 Guardería Canina Huellas Felices - Proyecto DAM</p>
-</footer>
+            <div id="mensajeMascota" class="mensaje"></div>
+        </section>
 
-<script src="/js/api.js"></script>
-<script src="/js/cliente.js"></script>
+        <!-- LISTADO MASCOTAS -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Mis mascotas</h2>
+                <p>Listado de mascotas registradas</p>
+            </div>
+
+            <div id="contenedorMascotas" class="lista-cards">
+                <p class="texto-suave">Cargando mascotas...</p>
+            </div>
+        </section>
+
+        <!-- FORMULARIO RESERVAS -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Nueva reserva</h2>
+                <p>Solicita una estancia para una de tus mascotas</p>
+            </div>
+
+            <form id="formReserva" class="formulario">
+                <div class="campo">
+                    <label for="mascotaReserva">Mascota</label>
+                    <select id="mascotaReserva" required>
+                        <option value="">Selecciona una mascota</option>
+                    </select>
+                </div>
+
+                <div class="campo-grid">
+                    <div class="campo">
+                        <label for="fechaEntrada">Fecha entrada</label>
+                        <input type="date" id="fechaEntrada" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="fechaSalida">Fecha salida</label>
+                        <input type="date" id="fechaSalida" required>
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="tipoReserva">Tipo de estancia</label>
+                    <select id="tipoReserva">
+                        <option value="GUARDERIA_DIA">Guardería de día</option>
+                        <option value="ESTANCIA_LARGA">Estancia larga</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="observacionesReserva">Observaciones</label>
+                    <textarea id="observacionesReserva" rows="4" placeholder="Horario, medicación, necesidades especiales, etc."></textarea>
+                </div>
+
+                <div class="acciones-formulario">
+                    <button type="submit" class="btn btn-primario">Crear reserva</button>
+                </div>
+            </form>
+
+            <div id="mensajeReserva" class="mensaje"></div>
+        </section>
+
+        <!-- LISTADO RESERVAS -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Mis reservas</h2>
+                <p>Consulta y elimina tus reservas</p>
+            </div>
+
+            <div id="contenedorReservas" class="lista-cards">
+                <p class="texto-suave">Cargando reservas...</p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="js/cliente.js"></script>
 </body>
 </html>

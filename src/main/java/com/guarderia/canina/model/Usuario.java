@@ -1,10 +1,11 @@
 package com.guarderia.canina.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "usuarios")
@@ -17,15 +18,19 @@ public class Usuario {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
     private String apellidos;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     private String telefono;
-    private String direccion;
-    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(nullable = false)
+    @JsonIgnore
+    private String password;
+
+    @Column(nullable = false)
+    private String rol = "CLIENTE";
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("usuario-mascotas")
@@ -34,68 +39,74 @@ public class Usuario {
     public Usuario() {
     }
 
+    public Usuario(Long id, String nombre, String apellidos, String email, String telefono, String password, String rol) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.email = email;
+        this.telefono = telefono;
+        this.password = password;
+        this.rol = rol;
+    }
+
     public Long getId() {
         return id;
-    }
-
-    public String getNombreCompleto() {
-        return nombre + " " + apellidos;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public String getApellidos() {
         return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getTelefono() {
         return telefono;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public List<Mascota> getMascotas() {
+        return mascotas;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public List<Mascota> getMascotas() {
-        return mascotas;
+    public void setRol(String rol) {
+        this.rol = rol;
     }
 
     public void setMascotas(List<Mascota> mascotas) {

@@ -1,10 +1,11 @@
 package com.guarderia.canina.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "mascotas")
@@ -18,7 +19,9 @@ public class Mascota {
     private String nombre;
 
     private String raza;
+
     private Double pesoKg;
+
     private Integer edadAnios;
 
     @Column(length = 800)
@@ -36,64 +39,74 @@ public class Mascota {
     public Mascota() {
     }
 
-    public Long getId() {
-        return id;
+    public Mascota(Long id, String nombre, String raza, Double pesoKg, Integer edadAnios, String observaciones, Usuario usuario) {
+        this.id = id;
+        this.nombre = nombre;
+        this.raza = raza;
+        this.pesoKg = pesoKg;
+        this.edadAnios = edadAnios;
+        this.observaciones = observaciones;
+        this.usuario = usuario;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getId() {
+        return id;
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public String getRaza() {
         return raza;
-    }
-
-    public void setRaza(String raza) {
-        this.raza = raza;
     }
 
     public Double getPesoKg() {
         return pesoKg;
     }
 
-    public void setPesoKg(Double pesoKg) {
-        this.pesoKg = pesoKg;
-    }
-
     public Integer getEdadAnios() {
         return edadAnios;
-    }
-
-    public void setEdadAnios(Integer edadAnios) {
-        this.edadAnios = edadAnios;
     }
 
     public String getObservaciones() {
         return observaciones;
     }
 
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
-
     public Usuario getUsuario() {
         return usuario;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
     public List<Reserva> getReservas() {
         return reservas;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setRaza(String raza) {
+        this.raza = raza;
+    }
+
+    public void setPesoKg(Double pesoKg) {
+        this.pesoKg = pesoKg;
+    }
+
+    public void setEdadAnios(Integer edadAnios) {
+        this.edadAnios = edadAnios;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     public void setReservas(List<Reserva> reservas) {
