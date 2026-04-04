@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cliente-mascotas")
+@RequestMapping("/api/mascotas")
 @CrossOrigin(origins = "*")
 public class MascotaController {
 

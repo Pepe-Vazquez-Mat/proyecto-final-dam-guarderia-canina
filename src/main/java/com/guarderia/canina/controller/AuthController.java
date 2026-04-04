@@ -2,31 +2,39 @@ package com.guarderia.canina.controller;
 
 import com.guarderia.canina.model.Usuario;
 import com.guarderia.canina.repository.UsuarioRepository;
+import com.guarderia.canina.security.SecurityUser;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthController(UsuarioRepository usuarioRepository) {
+    public AuthController(UsuarioRepository usuarioRepository,
+                          PasswordEncoder passwordEncoder,
+                          AuthenticationManager authenticationManager) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-
+    @PostMapping("/registro")
+    public ResponseEntity<?> registrar(@RequestBody RegistroRequest request) {
         if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "El nombre es obligatorio"));
         }
@@ -35,106 +43,91 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "El email es obligatorio"));
         }
 
-        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña es obligatoria"));
+        if (request.getPassword() == null || request.getPassword().length() < 4) {
+            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña debe tener al menos 4 caracteres"));
         }
 
-        String emailNormalizado = request.getEmail().trim().toLowerCase();
-
-        if (usuarioRepository.existsByEmail(emailNormalizado)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "Ya existe un usuario con ese email"));
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Ya existe un usuario con ese email"));
         }
 
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre().trim());
         usuario.setApellidos(request.getApellidos() != null ? request.getApellidos().trim() : "");
-        usuario.setEmail(emailNormalizado);
+        usuario.setEmail(request.getEmail().trim().toLowerCase());
         usuario.setTelefono(request.getTelefono() != null ? request.getTelefono().trim() : "");
-        usuario.setPassword(hashPassword(request.getPassword()));
+        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setRol("CLIENTE");
 
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+        usuarioRepository.save(usuario);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(
-                usuarioGuardado.getId(),
-                usuarioGuardado.getNombre(),
-                usuarioGuardado.getApellidos(),
-                usuarioGuardado.getEmail(),
-                usuarioGuardado.getTelefono(),
-                usuarioGuardado.getRol(),
-                "Usuario registrado correctamente"
-        ));
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Usuario registrado correctamente");
+        respuesta.put("usuarioId", usuario.getId());
+        respuesta.put("email", usuario.getEmail());
+        respuesta.put("rol", usuario.getRol());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El email es obligatorio"));
-        }
-
-        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña es obligatoria"));
-        }
-
-        String emailNormalizado = request.getEmail().trim().toLowerCase();
-
-        Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(emailNormalizado);
-
-        if (usuarioOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Credenciales incorrectas"));
-        }
-
-        Usuario usuario = usuarioOptional.get();
-        String passwordHasheada = hashPassword(request.getPassword());
-
-        if (!usuario.getPassword().equals(passwordHasheada)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Credenciales incorrectas"));
-        }
-
-        return ResponseEntity.ok(new AuthResponse(
-                usuario.getId(),
-                usuario.getNombre(),
-                usuario.getApellidos(),
-                usuario.getEmail(),
-                usuario.getTelefono(),
-                usuario.getRol(),
-                "Login correcto"
-        ));
-    }
-
-    private String hashPassword(String password) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashBytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
 
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error al cifrar la contraseña", e);
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("mensaje", "Login correcto");
+            respuesta.put("id", securityUser.getUsuario().getId());
+            respuesta.put("nombre", securityUser.getUsuario().getNombre());
+            respuesta.put("email", securityUser.getUsuario().getEmail());
+            respuesta.put("rol", securityUser.getUsuario().getRol());
+
+            return ResponseEntity.ok(respuesta);
+
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Email o contraseña incorrectos"));
         }
     }
 
-    public static class RegisterRequest {
+    @GetMapping("/me")
+    public ResponseEntity<?> usuarioActual(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof SecurityUser securityUser)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "No autenticado"));
+        }
+
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("id", securityUser.getUsuario().getId());
+        respuesta.put("nombre", securityUser.getUsuario().getNombre());
+        respuesta.put("apellidos", securityUser.getUsuario().getApellidos());
+        respuesta.put("email", securityUser.getUsuario().getEmail());
+        respuesta.put("telefono", securityUser.getUsuario().getTelefono());
+        respuesta.put("rol", securityUser.getUsuario().getRol());
+
+        return ResponseEntity.ok(respuesta);
+    }
+
+    public static class RegistroRequest {
+        @NotBlank
         private String nombre;
         private String apellidos;
-        private String email;
-        private String telefono;
-        private String password;
 
-        public RegisterRequest() {
-        }
+        @Email
+        @NotBlank
+        private String email;
+
+        private String telefono;
+
+        @NotBlank
+        private String password;
 
         public String getNombre() {
             return nombre;
@@ -178,11 +171,12 @@ public class AuthController {
     }
 
     public static class LoginRequest {
+        @Email
+        @NotBlank
         private String email;
-        private String password;
 
-        public LoginRequest() {
-        }
+        @NotBlank
+        private String password;
 
         public String getEmail() {
             return email;
@@ -198,54 +192,6 @@ public class AuthController {
 
         public void setPassword(String password) {
             this.password = password;
-        }
-    }
-
-    public static class AuthResponse {
-        private Long id;
-        private String nombre;
-        private String apellidos;
-        private String email;
-        private String telefono;
-        private String rol;
-        private String mensaje;
-
-        public AuthResponse(Long id, String nombre, String apellidos, String email, String telefono, String rol, String mensaje) {
-            this.id = id;
-            this.nombre = nombre;
-            this.apellidos = apellidos;
-            this.email = email;
-            this.telefono = telefono;
-            this.rol = rol;
-            this.mensaje = mensaje;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public String getNombre() {
-            return nombre;
-        }
-
-        public String getApellidos() {
-            return apellidos;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public String getTelefono() {
-            return telefono;
-        }
-
-        public String getRol() {
-            return rol;
-        }
-
-        public String getMensaje() {
-            return mensaje;
         }
     }
 }

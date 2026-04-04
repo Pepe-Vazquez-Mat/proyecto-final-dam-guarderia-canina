@@ -1,6 +1,5 @@
 package com.guarderia.canina.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -26,11 +25,10 @@ public class Usuario {
     private String telefono;
 
     @Column(nullable = false)
-    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
-    private String rol = "CLIENTE";
+    private String rol = "CLIENTE"; // CLIENTE o ADMIN
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("usuario-mascotas")
