@@ -4,14 +4,12 @@ import com.guarderia.canina.model.Mascota;
 import com.guarderia.canina.model.Usuario;
 import com.guarderia.canina.repository.MascotaRepository;
 import com.guarderia.canina.repository.UsuarioRepository;
-import com.guarderia.canina.security.SecurityUser;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cliente-mascotas")
@@ -27,92 +25,93 @@ public class ClienteMascotaController {
     }
 
     @GetMapping
-    public ResponseEntity<?> listarMisMascotas(Authentication authentication) {
-        Usuario usuario = obtenerUsuarioAutenticado(authentication);
-        List<Mascota> mascotas = mascotaRepository.findByUsuarioId(usuario.getId());
+    public ResponseEntity<?> listarMascotasDelCliente(HttpSession session) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+
+        if (usuarioLogueado == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No autenticado");
+        }
+
+        List<Mascota> mascotas = mascotaRepository.findByUsuarioId(usuarioLogueado.getId());
         return ResponseEntity.ok(mascotas);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerMiMascota(@PathVariable Long id, Authentication authentication) {
-        Usuario usuario = obtenerUsuarioAutenticado(authentication);
-
-        return mascotaRepository.findByIdAndUsuarioId(id, usuario.getId())
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "No puedes acceder a una mascota que no es tuya")));
-    }
-
     @PostMapping
-    public ResponseEntity<?> crearMascota(@RequestBody Mascota mascota, Authentication authentication) {
-        Usuario usuario = obtenerUsuarioAutenticado(authentication);
+    public ResponseEntity<?> crearMascota(@RequestBody Mascota mascota, HttpSession session) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
 
-        if (mascota.getNombre() == null || mascota.getNombre().trim().isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "El nombre de la mascota es obligatorio"));
+        if (usuarioLogueado == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No autenticado");
         }
 
-        mascota.setId(null);
-        mascota.setUsuario(usuario);
-        mascota.setReservas(null);
+        if (mascota.getNombre() == null || mascota.getNombre().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("El nombre de la mascota es obligatorio");
+        }
 
+        Usuario usuario = usuarioRepository.findById(usuarioLogueado.getId()).orElse(null);
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado");
+        }
+
+        mascota.setUsuario(usuario);
         Mascota guardada = mascotaRepository.save(mascota);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+
+        return ResponseEntity.ok(guardada);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarMascota(@PathVariable Long id,
-                                               @RequestBody Mascota datosMascota,
-                                               Authentication authentication) {
-        Usuario usuario = obtenerUsuarioAutenticado(authentication);
+    public ResponseEntity<?> editarMascota(@PathVariable Long id,
+                                           @RequestBody Mascota datosMascota,
+                                           HttpSession session) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
 
-        Mascota mascotaExistente = mascotaRepository.findByIdAndUsuarioId(id, usuario.getId())
-                .orElse(null);
+        if (usuarioLogueado == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No autenticado");
+        }
 
-        if (mascotaExistente == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "No puedes modificar una mascota que no es tuya"));
+        Mascota mascota = mascotaRepository.findById(id).orElse(null);
+
+        if (mascota == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mascota no encontrada");
+        }
+
+        if (mascota.getUsuario() == null || !mascota.getUsuario().getId().equals(usuarioLogueado.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes editar esta mascota");
         }
 
         if (datosMascota.getNombre() == null || datosMascota.getNombre().trim().isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "El nombre de la mascota es obligatorio"));
+            return ResponseEntity.badRequest().body("El nombre de la mascota es obligatorio");
         }
 
-        mascotaExistente.setNombre(datosMascota.getNombre());
-        mascotaExistente.setRaza(datosMascota.getRaza());
-        mascotaExistente.setPesoKg(datosMascota.getPesoKg());
-        mascotaExistente.setEdadAnios(datosMascota.getEdadAnios());
-        mascotaExistente.setObservaciones(datosMascota.getObservaciones());
+        mascota.setNombre(datosMascota.getNombre());
+        mascota.setRaza(datosMascota.getRaza());
+        mascota.setPesoKg(datosMascota.getPesoKg());
+        mascota.setEdadAnios(datosMascota.getEdadAnios());
+        mascota.setObservaciones(datosMascota.getObservaciones());
 
-        Mascota actualizada = mascotaRepository.save(mascotaExistente);
+        Mascota actualizada = mascotaRepository.save(mascota);
         return ResponseEntity.ok(actualizada);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarMascota(@PathVariable Long id, Authentication authentication) {
-        Usuario usuario = obtenerUsuarioAutenticado(authentication);
+    public ResponseEntity<?> eliminarMascota(@PathVariable Long id, HttpSession session) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
 
-        Mascota mascota = mascotaRepository.findByIdAndUsuarioId(id, usuario.getId())
-                .orElse(null);
+        if (usuarioLogueado == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No autenticado");
+        }
+
+        Mascota mascota = mascotaRepository.findById(id).orElse(null);
 
         if (mascota == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "No puedes eliminar una mascota que no es tuya"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mascota no encontrada");
+        }
+
+        if (mascota.getUsuario() == null || !mascota.getUsuario().getId().equals(usuarioLogueado.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes eliminar esta mascota");
         }
 
         mascotaRepository.delete(mascota);
-        return ResponseEntity.ok(Map.of("mensaje", "Mascota eliminada correctamente"));
-    }
-
-    private Usuario obtenerUsuarioAutenticado(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof SecurityUser securityUser)) {
-            throw new RuntimeException("Usuario no autenticado");
-        }
-
-        Long usuarioId = securityUser.getUsuario().getId();
-
-        return usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado en base de datos"));
+        return ResponseEntity.ok("Mascota eliminada correctamente");
     }
 }

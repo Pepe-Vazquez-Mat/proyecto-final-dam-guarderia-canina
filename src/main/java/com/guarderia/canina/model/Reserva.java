@@ -1,6 +1,5 @@
 package com.guarderia.canina.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -38,7 +37,6 @@ public class Reserva {
 
     @ManyToOne
     @JoinColumn(name = "mascota_id", nullable = false)
-    @JsonBackReference("mascota-reservas")
     private Mascota mascota;
 
     public Reserva() {

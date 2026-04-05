@@ -1,115 +1,53 @@
-const API_URL = "http://localhost:8081/api/auth";
+const API_BASE = "http://localhost:8081";
 
-const tabLogin = document.getElementById("tabLogin");
-const tabRegistro = document.getElementById("tabRegistro");
-
-const formLogin = document.getElementById("formLogin");
-const formRegistro = document.getElementById("formRegistro");
-
+const loginForm = document.getElementById("loginForm");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
 const mensaje = document.getElementById("mensaje");
 
-function mostrarMensaje(texto, tipo = "ok") {
+function mostrarMensaje(texto, tipo = "error") {
     mensaje.textContent = texto;
-    mensaje.className = "mensaje " + tipo;
+    mensaje.className = `mensaje-login ${tipo}`;
 }
 
-function limpiarMensaje() {
-    mensaje.textContent = "";
-    mensaje.className = "mensaje";
-}
+loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-function activarLogin() {
-    tabLogin.classList.add("activa");
-    tabRegistro.classList.remove("activa");
-    formLogin.classList.add("activo");
-    formRegistro.classList.remove("activo");
-    limpiarMensaje();
-}
-
-function activarRegistro() {
-    tabRegistro.classList.add("activa");
-    tabLogin.classList.remove("activa");
-    formRegistro.classList.add("activo");
-    formLogin.classList.remove("activo");
-    limpiarMensaje();
-}
-
-tabLogin.addEventListener("click", activarLogin);
-tabRegistro.addEventListener("click", activarRegistro);
-
-formRegistro.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    limpiarMensaje();
-
-    const nuevoUsuario = {
-        nombre: document.getElementById("registroNombre").value.trim(),
-        apellidos: document.getElementById("registroApellidos").value.trim(),
-        email: document.getElementById("registroEmail").value.trim(),
-        telefono: document.getElementById("registroTelefono").value.trim(),
-        password: document.getElementById("registroPassword").value
+    const body = {
+        email: emailInput.value.trim(),
+        password: passwordInput.value.trim()
     };
 
     try {
-        const response = await fetch(`${API_URL}/register`, {
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(nuevoUsuario)
+            credentials: "include",
+            body: JSON.stringify(body)
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-            mostrarMensaje(data.error || "No se pudo registrar el usuario", "error");
-            return;
+            const texto = await response.text();
+            throw new Error(texto || "Credenciales incorrectas");
         }
 
-        mostrarMensaje("Registro completado. Ya puedes iniciar sesión.", "ok");
-        formRegistro.reset();
-        activarLogin();
-
-    } catch (error) {
-        mostrarMensaje("Error de conexión con el servidor", "error");
-        console.error(error);
-    }
-});
-
-formLogin.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    limpiarMensaje();
-
-    const credenciales = {
-        email: document.getElementById("loginEmail").value.trim(),
-        password: document.getElementById("loginPassword").value
-    };
-
-    try {
-        const response = await fetch(`${API_URL}/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(credenciales)
-        });
-
         const data = await response.json();
-
-        if (!response.ok) {
-            mostrarMensaje(data.error || "Email o contraseña incorrectos", "error");
-            return;
-        }
-
-        localStorage.setItem("usuarioLogueado", JSON.stringify(data));
+        const rol = (data.rol || "").trim().toUpperCase();
 
         mostrarMensaje("Login correcto. Redirigiendo...", "ok");
 
         setTimeout(() => {
-            window.location.href = "cliente.html";
-        }, 800);
+            if (rol === "ADMIN") {
+                window.location.href = "/admin.html";
+            } else {
+                window.location.href = "/cliente.html";
+            }
+        }, 700);
 
     } catch (error) {
-        mostrarMensaje("Error de conexión con el servidor", "error");
         console.error(error);
+        mostrarMensaje(error.message || "Error al iniciar sesión", "error");
     }
 });

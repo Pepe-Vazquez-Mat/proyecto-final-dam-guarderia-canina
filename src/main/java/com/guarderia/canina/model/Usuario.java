@@ -1,10 +1,7 @@
 package com.guarderia.canina.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -24,27 +21,13 @@ public class Usuario {
 
     private String telefono;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String rol = "CLIENTE"; // CLIENTE o ADMIN
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("usuario-mascotas")
-    private List<Mascota> mascotas = new ArrayList<>();
+    private String rol = "CLIENTE";
 
     public Usuario() {
-    }
-
-    public Usuario(Long id, String nombre, String apellidos, String email, String telefono, String password, String rol) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.email = email;
-        this.telefono = telefono;
-        this.password = password;
-        this.rol = rol;
     }
 
     public Long getId() {
@@ -55,59 +38,47 @@ public class Usuario {
         return nombre;
     }
 
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getRol() {
-        return rol;
-    }
-
-    public List<Mascota> getMascotas() {
-        return mascotas;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getApellidos() {
+        return apellidos;
     }
 
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getTelefono() {
+        return telefono;
     }
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public void setRol(String rol) {
-        this.rol = rol;
+    public String getRol() {
+        return rol;
     }
 
-    public void setMascotas(List<Mascota> mascotas) {
-        this.mascotas = mascotas;
+    public void setRol(String rol) {
+        this.rol = rol;
     }
 }

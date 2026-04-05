@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservas")
-@CrossOrigin(origins = "*")
+
 public class ReservaController {
 
     private final ReservaRepository reservaRepository;
@@ -21,6 +21,12 @@ public class ReservaController {
                              MascotaRepository mascotaRepository) {
         this.reservaRepository = reservaRepository;
         this.mascotaRepository = mascotaRepository;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Reserva>> obtenerTodasLasReservas() {
+        List<Reserva> reservas = reservaRepository.findAll();
+        return ResponseEntity.ok(reservas);
     }
 
     @GetMapping("/mascota/{mascotaId}")
@@ -49,6 +55,24 @@ public class ReservaController {
 
         Reserva nuevaReserva = reservaRepository.save(reserva);
         return ResponseEntity.ok(nuevaReserva);
+    }
+
+    @PutMapping("/{reservaId}")
+    public ResponseEntity<?> actualizarReserva(@PathVariable Long reservaId, @RequestBody Reserva datosActualizados) {
+        Reserva reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        reserva.setFechaEntrada(datosActualizados.getFechaEntrada());
+        reserva.setFechaSalida(datosActualizados.getFechaSalida());
+        reserva.setTipoEstancia(datosActualizados.getTipoEstancia());
+        reserva.setServicioRecogida(datosActualizados.getServicioRecogida());
+        reserva.setServicioPeluqueria(datosActualizados.getServicioPeluqueria());
+        reserva.setEstadoReserva(datosActualizados.getEstadoReserva());
+        reserva.setObservaciones(datosActualizados.getObservaciones());
+        reserva.setPrecioTotal(datosActualizados.getPrecioTotal());
+
+        Reserva reservaActualizada = reservaRepository.save(reserva);
+        return ResponseEntity.ok(reservaActualizada);
     }
 
     @DeleteMapping("/{reservaId}")

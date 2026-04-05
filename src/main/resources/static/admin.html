@@ -3,143 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Guardería Canina</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/admin.css">
+    <title>Admin | Guardería Canina</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+<div class="admin-layout">
 
-<header class="admin-topbar">
-    <div class="admin-topbar-content">
-        <h1>Panel de Administración - Guardería Canina</h1>
-        <p>Gestión de usuarios, mascotas y reservas</p>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">🐶</div>
+            <div>
+                <h1>Guardería Canina</h1>
+                <p>Panel de administración</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#resumen" class="nav-link active">Resumen</a>
+            <a href="#usuarios" class="nav-link">Usuarios</a>
+            <a href="#mascotas" class="nav-link">Mascotas</a>
+            <a href="#reservas" class="nav-link">Reservas</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button id="btnCerrarSesion" class="btn btn-danger">Cerrar sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h2>Panel Admin</h2>
+                <p>Gestión de usuarios, mascotas y reservas</p>
+            </div>
+
+            <div class="topbar-actions">
+                <span id="usuarioLogueado" class="usuario-logueado">Comprobando sesión...</span>
+                <button id="btnRefrescarTodo" class="btn btn-primary">Actualizar todo</button>
+            </div>
+        </header>
+
+        <section id="resumen" class="section">
+            <div class="section-header">
+                <h3>Resumen general</h3>
+                <p>Vista rápida del estado del sistema</p>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-label">Usuarios</span>
+                    <strong id="statUsuarios">0</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Mascotas</span>
+                    <strong id="statMascotas">0</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Reservas</span>
+                    <strong id="statReservas">0</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Pendientes</span>
+                    <strong id="statPendientes">0</strong>
+                </article>
+            </div>
+        </section>
+
+        <section id="usuarios" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Usuarios</h3>
+                    <p>Consulta de clientes registrados</p>
+                </div>
+                <div class="section-actions">
+                    <input type="text" id="buscarUsuarios" class="input-busqueda" placeholder="Buscar por nombre o email...">
+                    <button id="btnActualizarUsuarios" class="btn btn-secondary">Actualizar</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Rol</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaUsuarios">
+                        <tr>
+                            <td colspan="6" class="empty-cell">Cargando usuarios...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="mascotas" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Mascotas</h3>
+                    <p>Gestión completa de mascotas registradas</p>
+                </div>
+                <div class="section-actions">
+                    <input type="text" id="buscarMascotas" class="input-busqueda" placeholder="Buscar por nombre, raza o dueño...">
+                    <button id="btnActualizarMascotas" class="btn btn-secondary">Actualizar</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Raza</th>
+                            <th>Peso</th>
+                            <th>Edad</th>
+                            <th>Dueño</th>
+                            <th>Observaciones</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaMascotas">
+                        <tr>
+                            <td colspan="8" class="empty-cell">Cargando mascotas...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="reservas" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Reservas</h3>
+                    <p>Control de estancias y servicios adicionales</p>
+                </div>
+                <div class="section-actions section-actions-wrap">
+                    <input type="text" id="buscarReservas" class="input-busqueda" placeholder="Buscar por mascota, estado o tipo estancia...">
+
+                    <select id="filtroEstadoReserva" class="select-filtro">
+                        <option value="">Todos los estados</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="CONFIRMADA">CONFIRMADA</option>
+                        <option value="CANCELADA">CANCELADA</option>
+                        <option value="FINALIZADA">FINALIZADA</option>
+                    </select>
+
+                    <button id="btnActualizarReservas" class="btn btn-secondary">Actualizar</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Mascota</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Tipo estancia</th>
+                            <th>Recogida</th>
+                            <th>Peluquería</th>
+                            <th>Estado</th>
+                            <th>Precio</th>
+                            <th>Observaciones</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaReservas">
+                        <tr>
+                            <td colspan="11" class="empty-cell">Cargando reservas...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div id="modalMascota" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Editar mascota</h3>
+            <button class="modal-close" id="cerrarModalMascota">✕</button>
+        </div>
+
+        <form id="formEditarMascota" class="form-grid">
+            <input type="hidden" id="editMascotaId">
+
+            <div class="form-group">
+                <label for="editMascotaNombre">Nombre</label>
+                <input type="text" id="editMascotaNombre" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editMascotaRaza">Raza</label>
+                <input type="text" id="editMascotaRaza">
+            </div>
+
+            <div class="form-group">
+                <label for="editMascotaPeso">Peso (kg)</label>
+                <input type="number" step="0.1" id="editMascotaPeso">
+            </div>
+
+            <div class="form-group">
+                <label for="editMascotaEdad">Edad (años)</label>
+                <input type="number" id="editMascotaEdad">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="editMascotaObservaciones">Observaciones</label>
+                <textarea id="editMascotaObservaciones" rows="4"></textarea>
+            </div>
+
+            <div class="modal-actions full-width">
+                <button type="button" id="cancelarModalMascota" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </form>
     </div>
-</header>
+</div>
 
-<main class="admin-main">
-
-    <section class="bloque">
-        <div class="bloque-header">
-            <h2>Usuarios</h2>
-            <button type="button" id="btnActualizarUsuarios" class="btn-secundario">Actualizar usuarios</button>
+<div id="modalReserva" class="modal hidden">
+    <div class="modal-content modal-lg">
+        <div class="modal-header">
+            <h3>Editar reserva</h3>
+            <button class="modal-close" id="cerrarModalReserva">✕</button>
         </div>
 
-        <form id="formUsuario" class="admin-form">
-            <input type="text" id="nombreUsuario" placeholder="Nombre" required>
-            <input type="text" id="apellidosUsuario" placeholder="Apellidos">
-            <input type="email" id="emailUsuario" placeholder="Email" required>
-            <input type="text" id="telefonoUsuario" placeholder="Teléfono">
-            <input type="text" id="direccionUsuario" placeholder="Dirección">
-            <button type="submit" class="submit-btn">Crear usuario</button>
+        <form id="formEditarReserva" class="form-grid">
+            <input type="hidden" id="editReservaId">
+            <input type="hidden" id="editReservaMascotaId">
+
+            <div class="form-group">
+                <label for="editReservaFechaEntrada">Fecha entrada</label>
+                <input type="date" id="editReservaFechaEntrada" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editReservaFechaSalida">Fecha salida</label>
+                <input type="date" id="editReservaFechaSalida" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editReservaTipoEstancia">Tipo estancia</label>
+                <select id="editReservaTipoEstancia" required>
+                    <option value="DIA">DIA</option>
+                    <option value="LARGA_ESTANCIA">LARGA_ESTANCIA</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="editReservaEstado">Estado</label>
+                <select id="editReservaEstado" required>
+                    <option value="PENDIENTE">PENDIENTE</option>
+                    <option value="CONFIRMADA">CONFIRMADA</option>
+                    <option value="CANCELADA">CANCELADA</option>
+                    <option value="FINALIZADA">FINALIZADA</option>
+                </select>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="editReservaRecogida">
+                    Servicio de recogida
+                </label>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="editReservaPeluqueria">
+                    Servicio de peluquería
+                </label>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="editReservaObservaciones">Observaciones</label>
+                <textarea id="editReservaObservaciones" rows="4"></textarea>
+            </div>
+
+            <div class="modal-actions full-width">
+                <button type="button" id="cancelarModalReserva" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            </div>
         </form>
+    </div>
+</div>
 
-        <div id="mensajeUsuario" class="mensaje"></div>
+<div id="toast" class="toast hidden"></div>
 
-        <div class="tabla-contenedor">
-            <table class="admin-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Apellidos</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Dirección</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody id="tablaUsuarios"></tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="bloque">
-        <div class="bloque-header">
-            <h2>Mascotas</h2>
-            <button type="button" id="btnActualizarMascotas" class="btn-secundario">Actualizar mascotas</button>
-        </div>
-
-        <form id="formMascota" class="admin-form">
-            <input type="number" id="usuarioIdMascota" placeholder="ID del usuario propietario" required>
-            <input type="text" id="nombreMascota" placeholder="Nombre de la mascota" required>
-            <input type="text" id="razaMascota" placeholder="Raza">
-            <input type="number" step="0.01" id="pesoMascota" placeholder="Peso (kg)">
-            <input type="number" id="edadMascota" placeholder="Edad (años)">
-            <textarea id="observacionesMascota" placeholder="Observaciones"></textarea>
-            <button type="submit" class="submit-btn">Crear mascota</button>
-        </form>
-
-        <div id="mensajeMascota" class="mensaje"></div>
-
-        <div class="tabla-contenedor">
-            <table class="admin-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Raza</th>
-                    <th>Peso</th>
-                    <th>Edad</th>
-                    <th>Observaciones</th>
-                    <th>Usuario</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody id="tablaMascotas"></tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="bloque">
-        <div class="bloque-header">
-            <h2>Reservas</h2>
-            <button type="button" id="btnActualizarReservas" class="btn-secundario">Actualizar reservas</button>
-        </div>
-
-        <form id="formReserva" class="admin-form">
-            <select id="mascotaId" required>
-                <option value="">Selecciona una mascota</option>
-            </select>
-
-            <input type="date" id="fechaInicio" required>
-            <input type="date" id="fechaFin" required>
-            <input type="text" id="tipoEstancia" placeholder="Tipo de estancia">
-            <input type="number" step="0.01" id="precioTotal" placeholder="Precio total">
-
-            <select id="estadoReserva">
-                <option value="">Selecciona estado</option>
-                <option value="PENDIENTE">PENDIENTE</option>
-                <option value="CONFIRMADA">CONFIRMADA</option>
-                <option value="CANCELADA">CANCELADA</option>
-            </select>
-
-            <button type="submit" class="submit-btn">Crear reserva</button>
-        </form>
-
-        <div id="mensajeReserva" class="mensaje"></div>
-
-        <div class="tabla-contenedor">
-            <table class="admin-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Mascota</th>
-                    <th>Fecha inicio</th>
-                    <th>Fecha fin</th>
-                    <th>Tipo estancia</th>
-                    <th>Precio total</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody id="tablaReservas"></tbody>
-            </table>
-        </div>
-    </section>
-
-</main>
-
-<script src="/js/api.js"></script>
-<script src="/js/admin.js"></script>
+<script src="js/admin.js"></script>
 </body>
 </html>

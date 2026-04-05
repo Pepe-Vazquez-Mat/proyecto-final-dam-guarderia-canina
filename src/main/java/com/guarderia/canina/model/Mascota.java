@@ -1,7 +1,6 @@
 package com.guarderia.canina.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -29,11 +28,10 @@ public class Mascota {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonBackReference("usuario-mascotas")
     private Usuario usuario;
 
     @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("mascota-reservas")
+    @JsonIgnore
     private List<Reserva> reservas = new ArrayList<>();
 
     public Mascota() {

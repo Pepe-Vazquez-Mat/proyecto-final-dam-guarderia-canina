@@ -2,74 +2,41 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guardería Canina</title>
-    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<header class="header">
-    <div class="container">
-        <h1>Guardería Canina</h1>
-        <nav class="nav">
-            <a href="/index.html" class="activo">Inicio</a>
-            <a href="/mascotas.html">Mascotas</a>
-            <a href="/reservas.html">Reservas</a>
-        </nav>
-    </div>
-</header>
+<script>
+    const API_BASE = "http://localhost:8081";
 
-<main class="container">
-    <section class="panel hero">
-        <h2>Proyecto de gestión para guardería canina</h2>
-        <p>
-            Aplicación web desarrollada con Spring Boot, HTML, CSS y JavaScript
-            para la gestión de usuarios, mascotas y reservas en una guardería canina.
-        </p>
+    async function comprobarSesion() {
+        try {
+            const response = await fetch(`${API_BASE}/api/auth/me`, {
+                method: "GET",
+                credentials: "include"
+            });
 
-        <div class="hero-botones">
-            <a href="/mascotas.html" class="btn-link">Gestionar mascotas</a>
-            <a href="/reservas.html" class="btn-link">Gestionar reservas</a>
-        </div>
-    </section>
+            if (!response.ok) {
+                window.location.href = "/login.html";
+                return;
+            }
 
-    <section class="panel">
-        <h2>Módulos disponibles</h2>
+            const usuario = await response.json();
+            const rol = (usuario.rol || "").trim().toUpperCase();
 
-        <div class="grid-inicio">
-            <div class="card-inicio">
-                <h3>Mascotas</h3>
-                <p>
-                    Alta y consulta de mascotas con datos como nombre, raza, peso,
-                    edad y observaciones.
-                </p>
-                <a href="/mascotas.html" class="btn-link">Ir a mascotas</a>
-            </div>
+            if (rol === "ADMIN") {
+                window.location.href = "/admin.html";
+            } else {
+                window.location.href = "/cliente.html";
+            }
 
-            <div class="card-inicio">
-                <h3>Reservas</h3>
-                <p>
-                    Registro y consulta de reservas con fechas, tipo de estancia,
-                    precio total y estado de la reserva.
-                </p>
-                <a href="/reservas.html" class="btn-link">Ir a reservas</a>
-            </div>
-        </div>
-    </section>
+        } catch (error) {
+            window.location.href = "/login.html";
+        }
+    }
 
-    <section class="panel">
-        <h2>Tecnologías utilizadas</h2>
-        <div class="tecnologias">
-            <span class="tag-tec">Java</span>
-            <span class="tag-tec">Spring Boot</span>
-            <span class="tag-tec">JPA / Hibernate</span>
-            <span class="tag-tec">MySQL</span>
-            <span class="tag-tec">HTML</span>
-            <span class="tag-tec">CSS</span>
-            <span class="tag-tec">JavaScript</span>
-        </div>
-    </section>
-</main>
+    comprobarSesion();
+</script>
 
 </body>
 </html>

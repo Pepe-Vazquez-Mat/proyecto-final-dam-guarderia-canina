@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/mascotas")
-@CrossOrigin(origins = "*")
+
 public class MascotaController {
 
     private final MascotaRepository mascotaRepository;
@@ -21,6 +21,12 @@ public class MascotaController {
                              UsuarioRepository usuarioRepository) {
         this.mascotaRepository = mascotaRepository;
         this.usuarioRepository = usuarioRepository;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Mascota>> obtenerTodasLasMascotas() {
+        List<Mascota> mascotas = mascotaRepository.findAll();
+        return ResponseEntity.ok(mascotas);
     }
 
     @GetMapping("/usuario/{usuarioId}")

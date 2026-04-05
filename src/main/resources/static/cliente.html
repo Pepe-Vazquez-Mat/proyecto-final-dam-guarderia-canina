@@ -3,48 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área Cliente - Guardería Canina</title>
+    <title>Zona Cliente - Guardería Canina</title>
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/cliente.css">
 </head>
 <body>
 
-<div class="contenedor-principal">
-    <header class="topbar">
-        <div>
-            <h1>Guardería Canina</h1>
-            <p id="saludoUsuario">Área privada del cliente</p>
+<header class="topbar">
+    <div class="topbar__left">
+        <h1>Guardería Canina</h1>
+        <p class="subtitulo">Zona privada del cliente</p>
+    </div>
+
+    <div class="topbar__right">
+        <span id="usuarioLogueado" class="usuario-logueado">Cargando usuario...</span>
+        <button id="btnLogout" class="btn btn-danger" type="button">Cerrar sesión</button>
+    </div>
+</header>
+
+<main class="contenedor">
+
+    <section class="hero">
+        <div class="hero__texto">
+            <h2>Bienvenido a tu área de cliente</h2>
+            <p>
+                Desde aquí podrás gestionar tus mascotas y solicitar reservas
+                de forma rápida y sencilla.
+            </p>
         </div>
-        <button id="btnCerrarSesion" class="btn btn-secundario">Cerrar sesión</button>
-    </header>
+    </section>
 
-    <main class="grid-principal">
+    <section class="resumen-reservas">
+        <div class="resumen-reservas__header">
+            <div>
+                <h3>Estado de tus reservas</h3>
+                <p id="ultimaActualizacion" class="ultima-actualizacion">Última actualización: --:--:--</p>
+            </div>
+            <button id="btnRefrescarResumen" class="btn btn-secondary" type="button">Actualizar ahora</button>
+        </div>
 
-        <!-- FORMULARIO MASCOTAS -->
-        <section class="card">
-            <div class="card-header">
-                <h2 id="tituloFormularioMascota">Añadir mascota</h2>
-                <p>Gestiona los datos de tus mascotas</p>
+        <div class="resumen-grid">
+            <div class="resumen-card resumen-card--total">
+                <span>Total</span>
+                <strong id="contadorTotalReservas">0</strong>
+            </div>
+            <div class="resumen-card resumen-card--pendiente">
+                <span>Pendientes</span>
+                <strong id="contadorPendientes">0</strong>
+            </div>
+            <div class="resumen-card resumen-card--confirmada">
+                <span>Confirmadas</span>
+                <strong id="contadorConfirmadas">0</strong>
+            </div>
+            <div class="resumen-card resumen-card--cancelada">
+                <span>Canceladas</span>
+                <strong id="contadorCanceladas">0</strong>
+            </div>
+            <div class="resumen-card resumen-card--finalizada">
+                <span>Finalizadas</span>
+                <strong id="contadorFinalizadas">0</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid-paneles">
+
+        <article class="panel">
+            <div class="panel__header">
+                <h3 id="tituloFormMascota">Mis mascotas</h3>
+                <button id="btnRecargarMascotas" class="btn btn-secondary" type="button">Actualizar</button>
             </div>
 
             <form id="formMascota" class="formulario">
-                <input type="hidden" id="mascotaId">
+                <input type="hidden" id="mascotaIdEditar">
 
-                <div class="campo">
-                    <label for="nombreMascota">Nombre</label>
-                    <input type="text" id="nombreMascota" required>
+                <div class="form-row">
+                    <div class="campo">
+                        <label for="nombreMascota">Nombre</label>
+                        <input type="text" id="nombreMascota" required>
+                    </div>
+                    <div class="campo">
+                        <label for="razaMascota">Raza</label>
+                        <input type="text" id="razaMascota">
+                    </div>
                 </div>
 
-                <div class="campo">
-                    <label for="razaMascota">Raza</label>
-                    <input type="text" id="razaMascota">
-                </div>
-
-                <div class="campo-grid">
+                <div class="form-row">
                     <div class="campo">
                         <label for="pesoMascota">Peso (kg)</label>
                         <input type="number" id="pesoMascota" step="0.1" min="0">
                     </div>
-
                     <div class="campo">
                         <label for="edadMascota">Edad (años)</label>
                         <input type="number" id="edadMascota" min="0">
@@ -53,51 +101,39 @@
 
                 <div class="campo">
                     <label for="observacionesMascota">Observaciones</label>
-                    <textarea id="observacionesMascota" rows="4" placeholder="Alergias, comportamiento, medicación, etc."></textarea>
+                    <textarea id="observacionesMascota" rows="3"></textarea>
                 </div>
 
                 <div class="acciones-formulario">
-                    <button type="submit" class="btn btn-primario" id="btnGuardarMascota">Guardar mascota</button>
-                    <button type="button" class="btn btn-secundario oculto" id="btnCancelarEdicion">Cancelar edición</button>
+                    <button type="submit" id="btnGuardarMascota" class="btn btn-primary">Guardar mascota</button>
+                    <button type="button" id="btnCancelarEdicionMascota" class="btn btn-secondary oculto">Cancelar edición</button>
                 </div>
             </form>
 
-            <div id="mensajeMascota" class="mensaje"></div>
-        </section>
+            <div id="listaMascotas" class="lista-cards"></div>
+        </article>
 
-        <!-- LISTADO MASCOTAS -->
-        <section class="card">
-            <div class="card-header">
-                <h2>Mis mascotas</h2>
-                <p>Listado de mascotas registradas</p>
-            </div>
-
-            <div id="contenedorMascotas" class="lista-cards">
-                <p class="texto-suave">Cargando mascotas...</p>
-            </div>
-        </section>
-
-        <!-- FORMULARIO RESERVAS -->
-        <section class="card">
-            <div class="card-header">
-                <h2>Nueva reserva</h2>
-                <p>Solicita una estancia para una de tus mascotas</p>
+        <article class="panel">
+            <div class="panel__header">
+                <h3 id="tituloFormReserva">Mis reservas</h3>
+                <button id="btnRecargarReservas" class="btn btn-secondary" type="button">Actualizar</button>
             </div>
 
             <form id="formReserva" class="formulario">
+                <input type="hidden" id="reservaIdEditar">
+
                 <div class="campo">
-                    <label for="mascotaReserva">Mascota</label>
-                    <select id="mascotaReserva" required>
+                    <label for="selectMascotaReserva">Mascota</label>
+                    <select id="selectMascotaReserva" required>
                         <option value="">Selecciona una mascota</option>
                     </select>
                 </div>
 
-                <div class="campo-grid">
+                <div class="form-row">
                     <div class="campo">
                         <label for="fechaEntrada">Fecha entrada</label>
                         <input type="date" id="fechaEntrada" required>
                     </div>
-
                     <div class="campo">
                         <label for="fechaSalida">Fecha salida</label>
                         <input type="date" id="fechaSalida" required>
@@ -105,40 +141,44 @@
                 </div>
 
                 <div class="campo">
-                    <label for="tipoReserva">Tipo de estancia</label>
-                    <select id="tipoReserva">
-                        <option value="GUARDERIA_DIA">Guardería de día</option>
-                        <option value="ESTANCIA_LARGA">Estancia larga</option>
+                    <label for="tipoEstancia">Tipo de estancia</label>
+                    <select id="tipoEstancia" required>
+                        <option value="">Selecciona tipo</option>
+                        <option value="DIA">Día</option>
+                        <option value="LARGA_ESTANCIA">Larga estancia</option>
                     </select>
+                </div>
+
+                <div class="form-row">
+                    <label class="check-linea">
+                        <input type="checkbox" id="servicioRecogida">
+                        Servicio de recogida
+                    </label>
+
+                    <label class="check-linea">
+                        <input type="checkbox" id="servicioPeluqueria">
+                        Servicio de peluquería
+                    </label>
                 </div>
 
                 <div class="campo">
                     <label for="observacionesReserva">Observaciones</label>
-                    <textarea id="observacionesReserva" rows="4" placeholder="Horario, medicación, necesidades especiales, etc."></textarea>
+                    <textarea id="observacionesReserva" rows="3"></textarea>
                 </div>
 
                 <div class="acciones-formulario">
-                    <button type="submit" class="btn btn-primario">Crear reserva</button>
+                    <button type="submit" id="btnGuardarReserva" class="btn btn-primary">Crear reserva</button>
+                    <button type="button" id="btnCancelarEdicionReserva" class="btn btn-secondary oculto">Cancelar edición</button>
                 </div>
             </form>
 
-            <div id="mensajeReserva" class="mensaje"></div>
-        </section>
+            <div id="listaReservas" class="lista-cards"></div>
+        </article>
 
-        <!-- LISTADO RESERVAS -->
-        <section class="card">
-            <div class="card-header">
-                <h2>Mis reservas</h2>
-                <p>Consulta y elimina tus reservas</p>
-            </div>
+    </section>
 
-            <div id="contenedorReservas" class="lista-cards">
-                <p class="texto-suave">Cargando reservas...</p>
-            </div>
-        </section>
-
-    </main>
-</div>
+    <section id="zonaMensajes" class="zona-mensajes"></section>
+</main>
 
 <script src="js/cliente.js"></script>
 </body>

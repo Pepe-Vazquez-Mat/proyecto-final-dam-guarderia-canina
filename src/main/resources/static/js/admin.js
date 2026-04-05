@@ -1,378 +1,639 @@
-const formUsuario = document.getElementById("formUsuario");
-const formMascota = document.getElementById("formMascota");
-const formReserva = document.getElementById("formReserva");
+const API_BASE = "http://localhost:8081";
+
+const RUTAS = {
+    me: `${API_BASE}/api/auth/me`,
+    logout: `${API_BASE}/api/auth/logout`,
+    usuarios: `${API_BASE}/api/usuarios`,
+    mascotas: `${API_BASE}/api/mascotas`,
+    reservas: `${API_BASE}/api/reservas`
+};
+
+let usuariosData = [];
+let mascotasData = [];
+let reservasData = [];
+let intervaloReservas = null;
+
+// ============================
+// ELEMENTOS
+// ============================
+const usuarioLogueado = document.getElementById("usuarioLogueado");
+const btnCerrarSesion = document.getElementById("btnCerrarSesion");
+const btnRefrescarTodo = document.getElementById("btnRefrescarTodo");
 
 const tablaUsuarios = document.getElementById("tablaUsuarios");
 const tablaMascotas = document.getElementById("tablaMascotas");
 const tablaReservas = document.getElementById("tablaReservas");
 
+const statUsuarios = document.getElementById("statUsuarios");
+const statMascotas = document.getElementById("statMascotas");
+const statReservas = document.getElementById("statReservas");
+const statPendientes = document.getElementById("statPendientes");
+
+const buscarUsuarios = document.getElementById("buscarUsuarios");
+const buscarMascotas = document.getElementById("buscarMascotas");
+const buscarReservas = document.getElementById("buscarReservas");
+const filtroEstadoReserva = document.getElementById("filtroEstadoReserva");
+
 const btnActualizarUsuarios = document.getElementById("btnActualizarUsuarios");
 const btnActualizarMascotas = document.getElementById("btnActualizarMascotas");
 const btnActualizarReservas = document.getElementById("btnActualizarReservas");
 
-document.addEventListener("DOMContentLoaded", async () => {
-    await inicializarPanel();
-});
+const toast = document.getElementById("toast");
 
-if (btnActualizarUsuarios) {
-    btnActualizarUsuarios.addEventListener("click", cargarUsuarios);
+// MODAL MASCOTA
+const modalMascota = document.getElementById("modalMascota");
+const cerrarModalMascota = document.getElementById("cerrarModalMascota");
+const cancelarModalMascota = document.getElementById("cancelarModalMascota");
+const formEditarMascota = document.getElementById("formEditarMascota");
+
+const editMascotaId = document.getElementById("editMascotaId");
+const editMascotaNombre = document.getElementById("editMascotaNombre");
+const editMascotaRaza = document.getElementById("editMascotaRaza");
+const editMascotaPeso = document.getElementById("editMascotaPeso");
+const editMascotaEdad = document.getElementById("editMascotaEdad");
+const editMascotaObservaciones = document.getElementById("editMascotaObservaciones");
+
+// MODAL RESERVA
+const modalReserva = document.getElementById("modalReserva");
+const cerrarModalReserva = document.getElementById("cerrarModalReserva");
+const cancelarModalReserva = document.getElementById("cancelarModalReserva");
+const formEditarReserva = document.getElementById("formEditarReserva");
+
+const editReservaId = document.getElementById("editReservaId");
+const editReservaFechaEntrada = document.getElementById("editReservaFechaEntrada");
+const editReservaFechaSalida = document.getElementById("editReservaFechaSalida");
+const editReservaTipoEstancia = document.getElementById("editReservaTipoEstancia");
+const editReservaEstado = document.getElementById("editReservaEstado");
+const editReservaRecogida = document.getElementById("editReservaRecogida");
+const editReservaPeluqueria = document.getElementById("editReservaPeluqueria");
+const editReservaObservaciones = document.getElementById("editReservaObservaciones");
+
+// ============================
+// UTILIDADES
+// ============================
+function mostrarToast(mensaje, ms = 2500) {
+    if (!toast) return;
+    toast.textContent = mensaje;
+    toast.classList.remove("hidden");
+
+    setTimeout(() => {
+        toast.classList.add("hidden");
+    }, ms);
 }
 
-if (btnActualizarMascotas) {
-    btnActualizarMascotas.addEventListener("click", async () => {
-        await cargarMascotas();
-        await cargarMascotasEnSelect();
-    });
+function obtenerTextoSeguro(valor) {
+    return valor === null || valor === undefined || valor === "" ? "-" : valor;
 }
 
-if (btnActualizarReservas) {
-    btnActualizarReservas.addEventListener("click", cargarReservas);
-}
-
-function mostrarMensaje(id, texto, tipo) {
-    const caja = document.getElementById(id);
-    if (!caja) return;
-    caja.textContent = texto;
-    caja.className = `mensaje ${tipo}`;
-}
-
-function limpiarMensaje(id) {
-    const caja = document.getElementById(id);
-    if (!caja) return;
-    caja.textContent = "";
-    caja.className = "mensaje";
+function formatearFecha(fecha) {
+    return fecha || "-";
 }
 
 function formatearPrecio(precio) {
-    if (precio === null || precio === undefined || precio === "") {
-        return "No indicado";
+    if (precio === null || precio === undefined || precio === "") return "-";
+    const numero = Number(precio);
+    if (Number.isNaN(numero)) return `${precio} €`;
+    return `${numero.toFixed(2)} €`;
+}
+
+function obtenerNombreUsuario(usuario) {
+    if (!usuario) return "-";
+    const nombre = usuario.nombre || "";
+    const apellidos = usuario.apellidos || "";
+    const nombreCompleto = `${nombre} ${apellidos}`.trim();
+    return nombreCompleto || usuario.email || "-";
+}
+
+function obtenerNombreMascota(mascota) {
+    if (!mascota) return "-";
+    return mascota.nombre || `Mascota ${mascota.id || ""}`;
+}
+
+function obtenerBadgeEstado(estado) {
+    const valor = (estado || "").toUpperCase();
+
+    if (valor === "PENDIENTE") {
+        return `<span class="badge badge-pendiente">PENDIENTE</span>`;
     }
-    return `${precio} €`;
+    if (valor === "CONFIRMADA") {
+        return `<span class="badge badge-confirmada">CONFIRMADA</span>`;
+    }
+    if (valor === "CANCELADA") {
+        return `<span class="badge badge-cancelada">CANCELADA</span>`;
+    }
+    if (valor === "FINALIZADA") {
+        return `<span class="badge badge-finalizada">FINALIZADA</span>`;
+    }
+
+    return `<span class="badge">${obtenerTextoSeguro(estado)}</span>`;
 }
 
-function obtenerClaseEstado(estado) {
-    if (!estado) return "";
-    const texto = estado.toLowerCase();
+async function fetchConSesion(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        }
+    });
 
-    if (texto === "pendiente") return "pendiente";
-    if (texto === "confirmada") return "confirmada";
-    if (texto === "cancelada") return "cancelada";
-
-    return "";
+    return response;
 }
 
-function filaVacia(columnas, mensaje) {
-    return `
-        <tr>
-            <td colspan="${columnas}" class="fila-vacia">${mensaje}</td>
-        </tr>
-    `;
+// ============================
+// SEGURIDAD
+// ============================
+async function comprobarSesionAdmin() {
+    try {
+        console.log("Comprobando sesión admin...");
+        const response = await fetchConSesion(RUTAS.me, { method: "GET" });
+
+        if (response.status === 401) {
+            window.location.href = "/login.html";
+            return false;
+        }
+
+        if (!response.ok) {
+            throw new Error("No se pudo comprobar la sesión");
+        }
+
+        const usuario = await response.json();
+        console.log("Usuario /me:", usuario);
+
+        const rolUsuario = (usuario.rol || "").trim().toUpperCase();
+
+        if (rolUsuario !== "ADMIN") {
+            window.location.href = "/cliente.html";
+            return false;
+        }
+
+        if (usuarioLogueado) {
+            usuarioLogueado.textContent = `Admin: ${usuario.nombre || usuario.email || "Usuario"}`;
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Error comprobando sesión admin:", error);
+        window.location.href = "/login.html";
+        return false;
+    }
 }
 
-async function inicializarPanel() {
-    await cargarUsuarios();
-    await cargarMascotas();
-    await cargarMascotasEnSelect();
-    await cargarReservas();
-}
-
-// =========================
-// USUARIOS
-// =========================
+// ============================
+// CARGA DE DATOS
+// ============================
 async function cargarUsuarios() {
-    limpiarMensaje("mensajeUsuario");
-
     try {
-        const usuarios = await obtenerUsuarios();
+        const response = await fetchConSesion(RUTAS.usuarios, { method: "GET" });
 
-        if (!usuarios.length) {
-            tablaUsuarios.innerHTML = filaVacia(7, "No hay usuarios registrados.");
+        if (response.status === 401) {
+            window.location.href = "/login.html";
             return;
         }
 
-        tablaUsuarios.innerHTML = usuarios.map(u => `
-            <tr>
-                <td>${u.id ?? ""}</td>
-                <td>${u.nombre ?? ""}</td>
-                <td>${u.apellidos ?? ""}</td>
-                <td>${u.email ?? ""}</td>
-                <td>${u.telefono ?? ""}</td>
-                <td>${u.direccion ?? ""}</td>
-                <td class="acciones">
-                    <button class="btn-danger" onclick="eliminarUsuario(${u.id})">Eliminar</button>
-                </td>
-            </tr>
-        `).join("");
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar los usuarios");
+        }
 
+        usuariosData = await response.json();
+        pintarUsuarios();
+        actualizarEstadisticas();
     } catch (error) {
-        tablaUsuarios.innerHTML = filaVacia(7, "Error al cargar usuarios.");
-        mostrarMensaje("mensajeUsuario", `Error cargando usuarios: ${error.message}`, "error");
+        console.error("Error cargando usuarios:", error);
+        if (tablaUsuarios) {
+            tablaUsuarios.innerHTML = `<tr><td colspan="6" class="empty-cell">No se pudieron cargar los usuarios</td></tr>`;
+        }
     }
 }
 
-if (formUsuario) {
-    formUsuario.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        limpiarMensaje("mensajeUsuario");
-
-        const usuario = {
-            nombre: document.getElementById("nombreUsuario").value.trim(),
-            apellidos: document.getElementById("apellidosUsuario").value.trim(),
-            email: document.getElementById("emailUsuario").value.trim(),
-            telefono: document.getElementById("telefonoUsuario").value.trim(),
-            direccion: document.getElementById("direccionUsuario").value.trim()
-        };
-
-        if (!usuario.nombre) {
-            mostrarMensaje("mensajeUsuario", "El nombre es obligatorio.", "error");
-            return;
-        }
-
-        if (!usuario.email) {
-            mostrarMensaje("mensajeUsuario", "El email es obligatorio.", "error");
-            return;
-        }
-
-        try {
-            await crearUsuario(usuario);
-            mostrarMensaje("mensajeUsuario", "Usuario creado correctamente.", "ok");
-            formUsuario.reset();
-            await cargarUsuarios();
-        } catch (error) {
-            mostrarMensaje("mensajeUsuario", `Error al crear usuario: ${error.message}`, "error");
-        }
-    });
-}
-
-async function eliminarUsuario(id) {
-    if (!confirm("¿Seguro que quieres eliminar este usuario?")) return;
-
-    try {
-        await borrarUsuario(id);
-        mostrarMensaje("mensajeUsuario", "Usuario eliminado correctamente.", "ok");
-        await cargarUsuarios();
-    } catch (error) {
-        mostrarMensaje("mensajeUsuario", `Error al eliminar usuario: ${error.message}`, "error");
-    }
-}
-
-// =========================
-// MASCOTAS
-// =========================
 async function cargarMascotas() {
-    limpiarMensaje("mensajeMascota");
-
     try {
-        const mascotas = await obtenerMascotas();
+        const response = await fetchConSesion(RUTAS.mascotas, { method: "GET" });
 
-        if (!mascotas.length) {
-            tablaMascotas.innerHTML = filaVacia(8, "No hay mascotas registradas.");
+        if (response.status === 401) {
+            window.location.href = "/login.html";
             return;
         }
 
-        tablaMascotas.innerHTML = mascotas.map(m => `
-            <tr>
-                <td>${m.id ?? ""}</td>
-                <td>${m.nombre ?? ""}</td>
-                <td>${m.raza ?? ""}</td>
-                <td>${m.pesoKg ?? ""}</td>
-                <td>${m.edadAnios ?? ""}</td>
-                <td>${m.observaciones ?? ""}</td>
-                <td>${m.usuario?.nombre ?? m.usuario?.id ?? ""}</td>
-                <td class="acciones">
-                    <button class="btn-danger" onclick="eliminarMascota(${m.id})">Eliminar</button>
-                </td>
-            </tr>
-        `).join("");
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar las mascotas");
+        }
 
+        mascotasData = await response.json();
+        pintarMascotas();
+        actualizarEstadisticas();
     } catch (error) {
-        tablaMascotas.innerHTML = filaVacia(8, "Error al cargar mascotas.");
-        mostrarMensaje("mensajeMascota", `Error cargando mascotas: ${error.message}`, "error");
+        console.error("Error cargando mascotas:", error);
+        if (tablaMascotas) {
+            tablaMascotas.innerHTML = `<tr><td colspan="8" class="empty-cell">No se pudieron cargar las mascotas</td></tr>`;
+        }
     }
 }
 
-if (formMascota) {
-    formMascota.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        limpiarMensaje("mensajeMascota");
-
-        const usuarioId = document.getElementById("usuarioIdMascota").value;
-        const peso = document.getElementById("pesoMascota").value;
-        const edad = document.getElementById("edadMascota").value;
-
-        const mascota = {
-            nombre: document.getElementById("nombreMascota").value.trim(),
-            raza: document.getElementById("razaMascota").value.trim(),
-            pesoKg: peso ? parseFloat(peso) : null,
-            edadAnios: edad ? parseInt(edad, 10) : null,
-            observaciones: document.getElementById("observacionesMascota").value.trim()
-        };
-
-        if (!usuarioId) {
-            mostrarMensaje("mensajeMascota", "Debes indicar el ID del usuario.", "error");
-            return;
-        }
-
-        if (!mascota.nombre) {
-            mostrarMensaje("mensajeMascota", "El nombre de la mascota es obligatorio.", "error");
-            return;
-        }
-
-        if (mascota.pesoKg !== null && mascota.pesoKg < 0) {
-            mostrarMensaje("mensajeMascota", "El peso no puede ser negativo.", "error");
-            return;
-        }
-
-        if (mascota.edadAnios !== null && mascota.edadAnios < 0) {
-            mostrarMensaje("mensajeMascota", "La edad no puede ser negativa.", "error");
-            return;
-        }
-
-        try {
-            await crearMascota(usuarioId, mascota);
-            mostrarMensaje("mensajeMascota", "Mascota creada correctamente.", "ok");
-            formMascota.reset();
-            await cargarMascotas();
-            await cargarMascotasEnSelect();
-        } catch (error) {
-            mostrarMensaje("mensajeMascota", `Error al crear mascota: ${error.message}`, "error");
-        }
-    });
-}
-
-async function eliminarMascota(id) {
-    if (!confirm("¿Seguro que quieres eliminar esta mascota?")) return;
-
-    try {
-        await borrarMascota(id);
-        mostrarMensaje("mensajeMascota", "Mascota eliminada correctamente.", "ok");
-        await cargarMascotas();
-        await cargarMascotasEnSelect();
-    } catch (error) {
-        mostrarMensaje("mensajeMascota", `Error al eliminar mascota: ${error.message}`, "error");
-    }
-}
-
-async function cargarMascotasEnSelect() {
-    try {
-        const mascotas = await obtenerMascotas();
-        const selectMascota = document.getElementById("mascotaId");
-
-        if (!selectMascota) return;
-
-        selectMascota.innerHTML = `<option value="">Selecciona una mascota</option>`;
-
-        mascotas.forEach(mascota => {
-            const option = document.createElement("option");
-            option.value = mascota.id;
-            option.textContent = `${mascota.id} - ${mascota.nombre}`;
-            selectMascota.appendChild(option);
-        });
-    } catch (error) {
-        mostrarMensaje("mensajeReserva", `Error cargando mascotas en selector: ${error.message}`, "error");
-    }
-}
-
-// =========================
-// RESERVAS
-// =========================
 async function cargarReservas() {
-    limpiarMensaje("mensajeReserva");
-
     try {
-        const reservas = await obtenerReservas();
+        const response = await fetchConSesion(RUTAS.reservas, { method: "GET" });
 
-        if (!reservas.length) {
-            tablaReservas.innerHTML = filaVacia(8, "No hay reservas registradas.");
+        if (response.status === 401) {
+            window.location.href = "/login.html";
             return;
         }
 
-        tablaReservas.innerHTML = reservas.map(r => `
-            <tr>
-                <td>${r.id ?? ""}</td>
-                <td>${r.mascota?.nombre ?? r.mascota?.id ?? ""}</td>
-                <td>${r.fechaInicio ?? ""}</td>
-                <td>${r.fechaFin ?? ""}</td>
-                <td>${r.tipoEstancia ?? ""}</td>
-                <td>${formatearPrecio(r.precioTotal)}</td>
-                <td>
-                    <span class="estado ${obtenerClaseEstado(r.estadoReserva)}">
-                        ${r.estadoReserva ?? ""}
-                    </span>
-                </td>
-                <td class="acciones">
-                    <button class="btn-danger" onclick="eliminarReserva(${r.id})">Eliminar</button>
-                </td>
-            </tr>
-        `).join("");
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar las reservas");
+        }
 
+        reservasData = await response.json();
+        pintarReservas();
+        actualizarEstadisticas();
     } catch (error) {
-        tablaReservas.innerHTML = filaVacia(8, "Error al cargar reservas.");
-        mostrarMensaje("mensajeReserva", `Error cargando reservas: ${error.message}`, "error");
+        console.error("Error cargando reservas:", error);
+        if (tablaReservas) {
+            tablaReservas.innerHTML = `<tr><td colspan="11" class="empty-cell">No se pudieron cargar las reservas</td></tr>`;
+        }
     }
 }
 
-if (formReserva) {
-    formReserva.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        limpiarMensaje("mensajeReserva");
-
-        const mascotaId = parseInt(document.getElementById("mascotaId").value, 10);
-        const fechaInicio = document.getElementById("fechaInicio").value;
-        const fechaFin = document.getElementById("fechaFin").value;
-        const tipoEstancia = document.getElementById("tipoEstancia").value.trim();
-        const estadoReserva = document.getElementById("estadoReserva").value;
-        const precioTexto = document.getElementById("precioTotal").value;
-
-        const precioTotal = precioTexto ? parseFloat(precioTexto) : null;
-
-        if (!mascotaId) {
-            mostrarMensaje("mensajeReserva", "Debes seleccionar una mascota.", "error");
-            return;
-        }
-
-        if (!fechaInicio || !fechaFin) {
-            mostrarMensaje("mensajeReserva", "Debes indicar fecha de inicio y fecha de fin.", "error");
-            return;
-        }
-
-        if (fechaFin < fechaInicio) {
-            mostrarMensaje("mensajeReserva", "La fecha fin no puede ser menor que la fecha inicio.", "error");
-            return;
-        }
-
-        if (precioTotal !== null && precioTotal < 0) {
-            mostrarMensaje("mensajeReserva", "El precio no puede ser negativo.", "error");
-            return;
-        }
-
-        const nuevaReserva = {
-            fechaInicio,
-            fechaFin,
-            tipoEstancia,
-            precioTotal,
-            estadoReserva
-        };
-
-        try {
-            await crearReserva(mascotaId, nuevaReserva);
-            mostrarMensaje("mensajeReserva", "Reserva creada correctamente.", "ok");
-            formReserva.reset();
-            await cargarReservas();
-        } catch (error) {
-            mostrarMensaje("mensajeReserva", `Error al crear reserva: ${error.message}`, "error");
-        }
-    });
+async function cargarTodo() {
+    await Promise.allSettled([
+        cargarUsuarios(),
+        cargarMascotas(),
+        cargarReservas()
+    ]);
 }
 
-async function eliminarReserva(id) {
-    if (!confirm("¿Seguro que quieres eliminar esta reserva?")) return;
+// ============================
+// PINTADO
+// ============================
+function pintarUsuarios() {
+    if (!tablaUsuarios) return;
+
+    const texto = (buscarUsuarios?.value || "").trim().toLowerCase();
+
+    const filtrados = usuariosData.filter(usuario => {
+        const nombre = (usuario.nombre || "").toLowerCase();
+        const apellidos = (usuario.apellidos || "").toLowerCase();
+        const email = (usuario.email || "").toLowerCase();
+        return nombre.includes(texto) || apellidos.includes(texto) || email.includes(texto);
+    });
+
+    if (!filtrados.length) {
+        tablaUsuarios.innerHTML = `<tr><td colspan="6" class="empty-cell">No hay usuarios para mostrar</td></tr>`;
+        return;
+    }
+
+    tablaUsuarios.innerHTML = filtrados.map(usuario => `
+        <tr>
+            <td>${obtenerTextoSeguro(usuario.id)}</td>
+            <td>${obtenerTextoSeguro(usuario.nombre)}</td>
+            <td>${obtenerTextoSeguro(usuario.apellidos)}</td>
+            <td>${obtenerTextoSeguro(usuario.email)}</td>
+            <td>${obtenerTextoSeguro(usuario.telefono)}</td>
+            <td>${obtenerTextoSeguro(usuario.rol)}</td>
+        </tr>
+    `).join("");
+}
+
+function pintarMascotas() {
+    if (!tablaMascotas) return;
+
+    const texto = (buscarMascotas?.value || "").trim().toLowerCase();
+
+    const filtradas = mascotasData.filter(mascota => {
+        const nombre = (mascota.nombre || "").toLowerCase();
+        const raza = (mascota.raza || "").toLowerCase();
+        const duenio = obtenerNombreUsuario(mascota.usuario).toLowerCase();
+        return nombre.includes(texto) || raza.includes(texto) || duenio.includes(texto);
+    });
+
+    if (!filtradas.length) {
+        tablaMascotas.innerHTML = `<tr><td colspan="8" class="empty-cell">No hay mascotas para mostrar</td></tr>`;
+        return;
+    }
+
+    tablaMascotas.innerHTML = filtradas.map(mascota => `
+        <tr>
+            <td>${obtenerTextoSeguro(mascota.id)}</td>
+            <td>${obtenerTextoSeguro(mascota.nombre)}</td>
+            <td>${obtenerTextoSeguro(mascota.raza)}</td>
+            <td>${obtenerTextoSeguro(mascota.pesoKg)}</td>
+            <td>${obtenerTextoSeguro(mascota.edadAnios)}</td>
+            <td>${obtenerNombreUsuario(mascota.usuario)}</td>
+            <td class="observaciones-cell">${obtenerTextoSeguro(mascota.observaciones)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-warning btn-sm" onclick="abrirEditarMascota(${mascota.id})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="eliminarMascota(${mascota.id})">Eliminar</button>
+                </div>
+            </td>
+        </tr>
+    `).join("");
+}
+
+function pintarReservas() {
+    if (!tablaReservas) return;
+
+    const texto = (buscarReservas?.value || "").trim().toLowerCase();
+    const estadoFiltro = (filtroEstadoReserva?.value || "").trim().toUpperCase();
+
+    const filtradas = reservasData.filter(reserva => {
+        const mascota = obtenerNombreMascota(reserva.mascota).toLowerCase();
+        const estado = (reserva.estadoReserva || "").toLowerCase();
+        const tipo = (reserva.tipoEstancia || "").toLowerCase();
+
+        const coincideTexto =
+            mascota.includes(texto) ||
+            estado.includes(texto) ||
+            tipo.includes(texto);
+
+        const coincideEstado =
+            !estadoFiltro || (reserva.estadoReserva || "").toUpperCase() === estadoFiltro;
+
+        return coincideTexto && coincideEstado;
+    });
+
+    if (!filtradas.length) {
+        tablaReservas.innerHTML = `<tr><td colspan="11" class="empty-cell">No hay reservas para mostrar</td></tr>`;
+        return;
+    }
+
+    tablaReservas.innerHTML = filtradas.map(reserva => `
+        <tr>
+            <td>${obtenerTextoSeguro(reserva.id)}</td>
+            <td>${obtenerNombreMascota(reserva.mascota)}</td>
+            <td>${formatearFecha(reserva.fechaEntrada)}</td>
+            <td>${formatearFecha(reserva.fechaSalida)}</td>
+            <td>${obtenerTextoSeguro(reserva.tipoEstancia)}</td>
+            <td>${reserva.servicioRecogida ? "Sí" : "No"}</td>
+            <td>${reserva.servicioPeluqueria ? "Sí" : "No"}</td>
+            <td>${obtenerBadgeEstado(reserva.estadoReserva)}</td>
+            <td>${formatearPrecio(reserva.precioTotal)}</td>
+            <td class="observaciones-cell">${obtenerTextoSeguro(reserva.observaciones)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-warning btn-sm" onclick="abrirEditarReserva(${reserva.id})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="eliminarReserva(${reserva.id})">Eliminar</button>
+                </div>
+            </td>
+        </tr>
+    `).join("");
+}
+
+function actualizarEstadisticas() {
+    if (statUsuarios) statUsuarios.textContent = usuariosData.length;
+    if (statMascotas) statMascotas.textContent = mascotasData.length;
+    if (statReservas) statReservas.textContent = reservasData.length;
+
+    const pendientes = reservasData.filter(r => (r.estadoReserva || "").toUpperCase() === "PENDIENTE").length;
+    if (statPendientes) statPendientes.textContent = pendientes;
+}
+
+// ============================
+// ACCIONES MASCOTAS
+// ============================
+window.abrirEditarMascota = function (id) {
+    const mascota = mascotasData.find(m => Number(m.id) === Number(id));
+    if (!mascota || !modalMascota) return;
+
+    editMascotaId.value = mascota.id || "";
+    editMascotaNombre.value = mascota.nombre || "";
+    editMascotaRaza.value = mascota.raza || "";
+    editMascotaPeso.value = mascota.pesoKg ?? "";
+    editMascotaEdad.value = mascota.edadAnios ?? "";
+    editMascotaObservaciones.value = mascota.observaciones || "";
+
+    modalMascota.classList.remove("hidden");
+};
+
+window.eliminarMascota = async function (id) {
+    const confirmado = confirm("¿Seguro que quieres eliminar esta mascota?");
+    if (!confirmado) return;
 
     try {
-        await borrarReserva(id);
-        mostrarMensaje("mensajeReserva", "Reserva eliminada correctamente.", "ok");
+        const response = await fetchConSesion(`${RUTAS.mascotas}/${id}`, { method: "DELETE" });
+
+        if (!response.ok) {
+            const texto = await response.text();
+            throw new Error(texto || "No se pudo eliminar la mascota");
+        }
+
+        mostrarToast("Mascota eliminada correctamente");
+        await cargarMascotas();
         await cargarReservas();
     } catch (error) {
-        mostrarMensaje("mensajeReserva", `Error al eliminar reserva: ${error.message}`, "error");
+        console.error(error);
+        mostrarToast(error.message || "No se pudo eliminar la mascota");
+    }
+};
+
+if (formEditarMascota) {
+    formEditarMascota.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const id = editMascotaId.value;
+        const mascotaOriginal = mascotasData.find(m => Number(m.id) === Number(id));
+
+        if (!mascotaOriginal) {
+            mostrarToast("No se encontró la mascota");
+            return;
+        }
+
+        const payload = {
+            id: Number(id),
+            nombre: editMascotaNombre.value.trim(),
+            raza: editMascotaRaza.value.trim(),
+            pesoKg: editMascotaPeso.value ? Number(editMascotaPeso.value) : null,
+            edadAnios: editMascotaEdad.value ? Number(editMascotaEdad.value) : null,
+            observaciones: editMascotaObservaciones.value.trim(),
+            usuario: mascotaOriginal.usuario
+        };
+
+        try {
+            const response = await fetchConSesion(`${RUTAS.mascotas}/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const texto = await response.text();
+                throw new Error(texto || "No se pudo actualizar la mascota");
+            }
+
+            cerrarModalMascotaFn();
+            mostrarToast("Mascota actualizada correctamente");
+            await cargarMascotas();
+        } catch (error) {
+            console.error(error);
+            mostrarToast(error.message || "No se pudo actualizar la mascota");
+        }
+    });
+}
+
+// ============================
+// ACCIONES RESERVAS
+// ============================
+window.abrirEditarReserva = function (id) {
+    const reserva = reservasData.find(r => Number(r.id) === Number(id));
+    if (!reserva || !modalReserva) return;
+
+    editReservaId.value = reserva.id || "";
+    editReservaFechaEntrada.value = reserva.fechaEntrada || "";
+    editReservaFechaSalida.value = reserva.fechaSalida || "";
+    editReservaTipoEstancia.value = reserva.tipoEstancia || "DIA";
+    editReservaEstado.value = reserva.estadoReserva || "PENDIENTE";
+    editReservaRecogida.checked = !!reserva.servicioRecogida;
+    editReservaPeluqueria.checked = !!reserva.servicioPeluqueria;
+    editReservaObservaciones.value = reserva.observaciones || "";
+
+    modalReserva.classList.remove("hidden");
+};
+
+window.eliminarReserva = async function (id) {
+    const confirmado = confirm("¿Seguro que quieres eliminar esta reserva?");
+    if (!confirmado) return;
+
+    try {
+        const response = await fetchConSesion(`${RUTAS.reservas}/${id}`, { method: "DELETE" });
+
+        if (!response.ok) {
+            const texto = await response.text();
+            throw new Error(texto || "No se pudo eliminar la reserva");
+        }
+
+        mostrarToast("Reserva eliminada correctamente");
+        await cargarReservas();
+    } catch (error) {
+        console.error(error);
+        mostrarToast(error.message || "No se pudo eliminar la reserva");
+    }
+};
+
+if (formEditarReserva) {
+    formEditarReserva.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const id = editReservaId.value;
+        const reservaOriginal = reservasData.find(r => Number(r.id) === Number(id));
+
+        if (!reservaOriginal) {
+            mostrarToast("No se encontró la reserva");
+            return;
+        }
+
+        const payload = {
+            id: Number(id),
+            fechaEntrada: editReservaFechaEntrada.value,
+            fechaSalida: editReservaFechaSalida.value,
+            tipoEstancia: editReservaTipoEstancia.value,
+            servicioRecogida: editReservaRecogida.checked,
+            servicioPeluqueria: editReservaPeluqueria.checked,
+            observaciones: editReservaObservaciones.value.trim(),
+            estadoReserva: editReservaEstado.value,
+            precioTotal: reservaOriginal.precioTotal,
+            mascota: reservaOriginal.mascota
+        };
+
+        try {
+            const response = await fetchConSesion(`${RUTAS.reservas}/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const texto = await response.text();
+                throw new Error(texto || "No se pudo actualizar la reserva");
+            }
+
+            cerrarModalReservaFn();
+            mostrarToast("Reserva actualizada correctamente");
+            await cargarReservas();
+        } catch (error) {
+            console.error(error);
+            mostrarToast(error.message || "No se pudo actualizar la reserva");
+        }
+    });
+}
+
+// ============================
+// MODALES
+// ============================
+function cerrarModalMascotaFn() {
+    if (!modalMascota || !formEditarMascota) return;
+    modalMascota.classList.add("hidden");
+    formEditarMascota.reset();
+}
+
+function cerrarModalReservaFn() {
+    if (!modalReserva || !formEditarReserva) return;
+    modalReserva.classList.add("hidden");
+    formEditarReserva.reset();
+}
+
+cerrarModalMascota?.addEventListener("click", cerrarModalMascotaFn);
+cancelarModalMascota?.addEventListener("click", cerrarModalMascotaFn);
+cerrarModalReserva?.addEventListener("click", cerrarModalReservaFn);
+cancelarModalReserva?.addEventListener("click", cerrarModalReservaFn);
+
+modalMascota?.addEventListener("click", (e) => {
+    if (e.target === modalMascota) cerrarModalMascotaFn();
+});
+
+modalReserva?.addEventListener("click", (e) => {
+    if (e.target === modalReserva) cerrarModalReservaFn();
+});
+
+// ============================
+// SESIÓN
+// ============================
+async function cerrarSesion() {
+    try {
+        await fetchConSesion(RUTAS.logout, { method: "POST" });
+    } catch (error) {
+        console.error("Error cerrando sesión:", error);
+    } finally {
+        window.location.href = "/login.html";
     }
 }
+
+btnCerrarSesion?.addEventListener("click", cerrarSesion);
+
+// ============================
+// FILTROS
+// ============================
+buscarUsuarios?.addEventListener("input", pintarUsuarios);
+buscarMascotas?.addEventListener("input", pintarMascotas);
+buscarReservas?.addEventListener("input", pintarReservas);
+filtroEstadoReserva?.addEventListener("change", pintarReservas);
+
+btnActualizarUsuarios?.addEventListener("click", cargarUsuarios);
+btnActualizarMascotas?.addEventListener("click", cargarMascotas);
+btnActualizarReservas?.addEventListener("click", cargarReservas);
+btnRefrescarTodo?.addEventListener("click", cargarTodo);
+
+// ============================
+// AUTOREFRESH
+// ============================
+function iniciarAutoRefreshReservas() {
+    if (intervaloReservas) {
+        clearInterval(intervaloReservas);
+    }
+
+    intervaloReservas = setInterval(() => {
+        cargarReservas();
+    }, 20000);
+}
+
+// ============================
+// INIT
+// ============================
+async function init() {
+    console.log("INIT admin");
+    const accesoValido = await comprobarSesionAdmin();
+    if (!accesoValido) return;
+
+    await cargarTodo();
+    iniciarAutoRefreshReservas();
+}
+
+init();
