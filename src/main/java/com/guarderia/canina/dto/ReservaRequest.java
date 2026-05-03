@@ -1,4 +1,4 @@
-package dto;
+package com.guarderia.canina.dto;
 
 public class ReservaRequest {
 

@@ -13,9 +13,6 @@ let mascotasData = [];
 let reservasData = [];
 let intervaloReservas = null;
 
-// ============================
-// ELEMENTOS
-// ============================
 const usuarioLogueado = document.getElementById("usuarioLogueado");
 const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 const btnRefrescarTodo = document.getElementById("btnRefrescarTodo");
@@ -40,7 +37,6 @@ const btnActualizarReservas = document.getElementById("btnActualizarReservas");
 
 const toast = document.getElementById("toast");
 
-// MODAL MASCOTA
 const modalMascota = document.getElementById("modalMascota");
 const cerrarModalMascota = document.getElementById("cerrarModalMascota");
 const cancelarModalMascota = document.getElementById("cancelarModalMascota");
@@ -53,7 +49,6 @@ const editMascotaPeso = document.getElementById("editMascotaPeso");
 const editMascotaEdad = document.getElementById("editMascotaEdad");
 const editMascotaObservaciones = document.getElementById("editMascotaObservaciones");
 
-// MODAL RESERVA
 const modalReserva = document.getElementById("modalReserva");
 const cerrarModalReserva = document.getElementById("cerrarModalReserva");
 const cancelarModalReserva = document.getElementById("cancelarModalReserva");
@@ -68,11 +63,9 @@ const editReservaRecogida = document.getElementById("editReservaRecogida");
 const editReservaPeluqueria = document.getElementById("editReservaPeluqueria");
 const editReservaObservaciones = document.getElementById("editReservaObservaciones");
 
-// ============================
-// UTILIDADES
-// ============================
 function mostrarToast(mensaje, ms = 2500) {
     if (!toast) return;
+
     toast.textContent = mensaje;
     toast.classList.remove("hidden");
 
@@ -91,45 +84,68 @@ function formatearFecha(fecha) {
 
 function formatearPrecio(precio) {
     if (precio === null || precio === undefined || precio === "") return "-";
+
     const numero = Number(precio);
-    if (Number.isNaN(numero)) return `${precio} €`;
+
+    if (Number.isNaN(numero)) {
+        return `${precio} €`;
+    }
+
     return `${numero.toFixed(2)} €`;
+}
+
+function normalizarTipoEstancia(tipo) {
+    const valor = (tipo || "").toUpperCase().trim();
+
+    if (valor === "GUARDERIA_DIA" || valor === "GUARDERIA" || valor === "DIA") {
+        return "GUARDERIA_DIA";
+    }
+
+    if (valor === "ESTANCIA" || valor === "LARGA_ESTANCIA" || valor === "ESTANCIA_LARGA") {
+        return "ESTANCIA";
+    }
+
+    return "";
+}
+
+function obtenerTextoTipoEstancia(tipo) {
+    const valor = normalizarTipoEstancia(tipo);
+
+    if (valor === "GUARDERIA_DIA") return "Guardería diaria sin pernocta";
+    if (valor === "ESTANCIA") return "Estancia con pernocta";
+
+    return obtenerTextoSeguro(tipo);
 }
 
 function obtenerNombreUsuario(usuario) {
     if (!usuario) return "-";
+
     const nombre = usuario.nombre || "";
     const apellidos = usuario.apellidos || "";
     const nombreCompleto = `${nombre} ${apellidos}`.trim();
+
     return nombreCompleto || usuario.email || "-";
 }
 
 function obtenerNombreMascota(mascota) {
     if (!mascota) return "-";
+
     return mascota.nombre || `Mascota ${mascota.id || ""}`;
 }
 
 function obtenerBadgeEstado(estado) {
     const valor = (estado || "").toUpperCase();
 
-    if (valor === "PENDIENTE") {
-        return `<span class="badge badge-pendiente">PENDIENTE</span>`;
-    }
-    if (valor === "CONFIRMADA") {
-        return `<span class="badge badge-confirmada">CONFIRMADA</span>`;
-    }
-    if (valor === "CANCELADA") {
-        return `<span class="badge badge-cancelada">CANCELADA</span>`;
-    }
-    if (valor === "FINALIZADA") {
-        return `<span class="badge badge-finalizada">FINALIZADA</span>`;
-    }
+    if (valor === "PENDIENTE") return `<span class="badge badge-pendiente">PENDIENTE</span>`;
+    if (valor === "CONFIRMADA") return `<span class="badge badge-confirmada">CONFIRMADA</span>`;
+    if (valor === "CANCELADA") return `<span class="badge badge-cancelada">CANCELADA</span>`;
+    if (valor === "FINALIZADA") return `<span class="badge badge-finalizada">FINALIZADA</span>`;
 
     return `<span class="badge">${obtenerTextoSeguro(estado)}</span>`;
 }
 
 async function fetchConSesion(url, options = {}) {
-    const response = await fetch(url, {
+    return await fetch(url, {
         ...options,
         credentials: "include",
         headers: {
@@ -137,17 +153,67 @@ async function fetchConSesion(url, options = {}) {
             ...(options.headers || {})
         }
     });
-
-    return response;
 }
 
-// ============================
-// SEGURIDAD
-// ============================
+function irASeccion(id) {
+    const seccion = document.getElementById(id);
+
+    if (!seccion) return;
+
+    seccion.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+    actualizarNavActiva(id);
+}
+
+function actualizarNavActiva(id) {
+    document.querySelectorAll(".nav-link").forEach(link => {
+        link.classList.remove("active");
+
+        if (link.getAttribute("href") === `#${id}`) {
+            link.classList.add("active");
+        }
+    });
+}
+
+function aplicarAccionTarjetaAdmin(destino) {
+    if (destino === "usuarios") {
+        irASeccion("usuarios");
+        mostrarToast("Mostrando usuarios");
+        return;
+    }
+
+    if (destino === "mascotas") {
+        irASeccion("mascotas");
+        mostrarToast("Mostrando mascotas");
+        return;
+    }
+
+    if (destino === "reservas") {
+        if (filtroEstadoReserva) filtroEstadoReserva.value = "";
+        if (buscarReservas) buscarReservas.value = "";
+        pintarReservas();
+        irASeccion("reservas");
+        mostrarToast("Mostrando todas las reservas");
+        return;
+    }
+
+    if (destino === "pendientes") {
+        if (filtroEstadoReserva) filtroEstadoReserva.value = "PENDIENTE";
+        if (buscarReservas) buscarReservas.value = "";
+        pintarReservas();
+        irASeccion("reservas");
+        mostrarToast("Mostrando reservas pendientes");
+    }
+}
+
 async function comprobarSesionAdmin() {
     try {
-        console.log("Comprobando sesión admin...");
-        const response = await fetchConSesion(RUTAS.me, { method: "GET" });
+        const response = await fetchConSesion(RUTAS.me, {
+            method: "GET"
+        });
 
         if (response.status === 401) {
             window.location.href = "/login.html";
@@ -159,8 +225,6 @@ async function comprobarSesionAdmin() {
         }
 
         const usuario = await response.json();
-        console.log("Usuario /me:", usuario);
-
         const rolUsuario = (usuario.rol || "").trim().toUpperCase();
 
         if (rolUsuario !== "ADMIN") {
@@ -180,12 +244,11 @@ async function comprobarSesionAdmin() {
     }
 }
 
-// ============================
-// CARGA DE DATOS
-// ============================
 async function cargarUsuarios() {
     try {
-        const response = await fetchConSesion(RUTAS.usuarios, { method: "GET" });
+        const response = await fetchConSesion(RUTAS.usuarios, {
+            method: "GET"
+        });
 
         if (response.status === 401) {
             window.location.href = "/login.html";
@@ -197,10 +260,12 @@ async function cargarUsuarios() {
         }
 
         usuariosData = await response.json();
+
         pintarUsuarios();
         actualizarEstadisticas();
     } catch (error) {
         console.error("Error cargando usuarios:", error);
+
         if (tablaUsuarios) {
             tablaUsuarios.innerHTML = `<tr><td colspan="6" class="empty-cell">No se pudieron cargar los usuarios</td></tr>`;
         }
@@ -209,7 +274,9 @@ async function cargarUsuarios() {
 
 async function cargarMascotas() {
     try {
-        const response = await fetchConSesion(RUTAS.mascotas, { method: "GET" });
+        const response = await fetchConSesion(RUTAS.mascotas, {
+            method: "GET"
+        });
 
         if (response.status === 401) {
             window.location.href = "/login.html";
@@ -221,10 +288,12 @@ async function cargarMascotas() {
         }
 
         mascotasData = await response.json();
+
         pintarMascotas();
         actualizarEstadisticas();
     } catch (error) {
         console.error("Error cargando mascotas:", error);
+
         if (tablaMascotas) {
             tablaMascotas.innerHTML = `<tr><td colspan="8" class="empty-cell">No se pudieron cargar las mascotas</td></tr>`;
         }
@@ -233,7 +302,9 @@ async function cargarMascotas() {
 
 async function cargarReservas() {
     try {
-        const response = await fetchConSesion(RUTAS.reservas, { method: "GET" });
+        const response = await fetchConSesion(RUTAS.reservas, {
+            method: "GET"
+        });
 
         if (response.status === 401) {
             window.location.href = "/login.html";
@@ -245,10 +316,12 @@ async function cargarReservas() {
         }
 
         reservasData = await response.json();
+
         pintarReservas();
         actualizarEstadisticas();
     } catch (error) {
         console.error("Error cargando reservas:", error);
+
         if (tablaReservas) {
             tablaReservas.innerHTML = `<tr><td colspan="11" class="empty-cell">No se pudieron cargar las reservas</td></tr>`;
         }
@@ -261,11 +334,10 @@ async function cargarTodo() {
         cargarMascotas(),
         cargarReservas()
     ]);
+
+    mostrarToast("Datos actualizados");
 }
 
-// ============================
-// PINTADO
-// ============================
 function pintarUsuarios() {
     if (!tablaUsuarios) return;
 
@@ -275,6 +347,7 @@ function pintarUsuarios() {
         const nombre = (usuario.nombre || "").toLowerCase();
         const apellidos = (usuario.apellidos || "").toLowerCase();
         const email = (usuario.email || "").toLowerCase();
+
         return nombre.includes(texto) || apellidos.includes(texto) || email.includes(texto);
     });
 
@@ -304,6 +377,7 @@ function pintarMascotas() {
         const nombre = (mascota.nombre || "").toLowerCase();
         const raza = (mascota.raza || "").toLowerCase();
         const duenio = obtenerNombreUsuario(mascota.usuario).toLowerCase();
+
         return nombre.includes(texto) || raza.includes(texto) || duenio.includes(texto);
     });
 
@@ -340,12 +414,14 @@ function pintarReservas() {
     const filtradas = reservasData.filter(reserva => {
         const mascota = obtenerNombreMascota(reserva.mascota).toLowerCase();
         const estado = (reserva.estadoReserva || "").toLowerCase();
-        const tipo = (reserva.tipoEstancia || "").toLowerCase();
+        const tipoTexto = obtenerTextoTipoEstancia(reserva.tipoEstancia).toLowerCase();
+        const tipoOriginal = (reserva.tipoEstancia || "").toLowerCase();
 
         const coincideTexto =
             mascota.includes(texto) ||
             estado.includes(texto) ||
-            tipo.includes(texto);
+            tipoTexto.includes(texto) ||
+            tipoOriginal.includes(texto);
 
         const coincideEstado =
             !estadoFiltro || (reserva.estadoReserva || "").toUpperCase() === estadoFiltro;
@@ -364,7 +440,7 @@ function pintarReservas() {
             <td>${obtenerNombreMascota(reserva.mascota)}</td>
             <td>${formatearFecha(reserva.fechaEntrada)}</td>
             <td>${formatearFecha(reserva.fechaSalida)}</td>
-            <td>${obtenerTextoSeguro(reserva.tipoEstancia)}</td>
+            <td>${obtenerTextoTipoEstancia(reserva.tipoEstancia)}</td>
             <td>${reserva.servicioRecogida ? "Sí" : "No"}</td>
             <td>${reserva.servicioPeluqueria ? "Sí" : "No"}</td>
             <td>${obtenerBadgeEstado(reserva.estadoReserva)}</td>
@@ -386,14 +462,15 @@ function actualizarEstadisticas() {
     if (statReservas) statReservas.textContent = reservasData.length;
 
     const pendientes = reservasData.filter(r => (r.estadoReserva || "").toUpperCase() === "PENDIENTE").length;
-    if (statPendientes) statPendientes.textContent = pendientes;
+
+    if (statPendientes) {
+        statPendientes.textContent = pendientes;
+    }
 }
 
-// ============================
-// ACCIONES MASCOTAS
-// ============================
 window.abrirEditarMascota = function (id) {
     const mascota = mascotasData.find(m => Number(m.id) === Number(id));
+
     if (!mascota || !modalMascota) return;
 
     editMascotaId.value = mascota.id || "";
@@ -408,10 +485,13 @@ window.abrirEditarMascota = function (id) {
 
 window.eliminarMascota = async function (id) {
     const confirmado = confirm("¿Seguro que quieres eliminar esta mascota?");
+
     if (!confirmado) return;
 
     try {
-        const response = await fetchConSesion(`${RUTAS.mascotas}/${id}`, { method: "DELETE" });
+        const response = await fetchConSesion(`${RUTAS.mascotas}/${id}`, {
+            method: "DELETE"
+        });
 
         if (!response.ok) {
             const texto = await response.text();
@@ -419,6 +499,7 @@ window.eliminarMascota = async function (id) {
         }
 
         mostrarToast("Mascota eliminada correctamente");
+
         await cargarMascotas();
         await cargarReservas();
     } catch (error) {
@@ -462,6 +543,7 @@ if (formEditarMascota) {
 
             cerrarModalMascotaFn();
             mostrarToast("Mascota actualizada correctamente");
+
             await cargarMascotas();
         } catch (error) {
             console.error(error);
@@ -470,17 +552,17 @@ if (formEditarMascota) {
     });
 }
 
-// ============================
-// ACCIONES RESERVAS
-// ============================
 window.abrirEditarReserva = function (id) {
     const reserva = reservasData.find(r => Number(r.id) === Number(id));
+
     if (!reserva || !modalReserva) return;
+
+    const tipoNormalizado = normalizarTipoEstancia(reserva.tipoEstancia);
 
     editReservaId.value = reserva.id || "";
     editReservaFechaEntrada.value = reserva.fechaEntrada || "";
     editReservaFechaSalida.value = reserva.fechaSalida || "";
-    editReservaTipoEstancia.value = reserva.tipoEstancia || "DIA";
+    editReservaTipoEstancia.value = tipoNormalizado || "ESTANCIA";
     editReservaEstado.value = reserva.estadoReserva || "PENDIENTE";
     editReservaRecogida.checked = !!reserva.servicioRecogida;
     editReservaPeluqueria.checked = !!reserva.servicioPeluqueria;
@@ -491,10 +573,13 @@ window.abrirEditarReserva = function (id) {
 
 window.eliminarReserva = async function (id) {
     const confirmado = confirm("¿Seguro que quieres eliminar esta reserva?");
+
     if (!confirmado) return;
 
     try {
-        const response = await fetchConSesion(`${RUTAS.reservas}/${id}`, { method: "DELETE" });
+        const response = await fetchConSesion(`${RUTAS.reservas}/${id}`, {
+            method: "DELETE"
+        });
 
         if (!response.ok) {
             const texto = await response.text();
@@ -502,6 +587,7 @@ window.eliminarReserva = async function (id) {
         }
 
         mostrarToast("Reserva eliminada correctamente");
+
         await cargarReservas();
     } catch (error) {
         console.error(error);
@@ -521,15 +607,22 @@ if (formEditarReserva) {
             return;
         }
 
+        const tipoFinal = normalizarTipoEstancia(editReservaTipoEstancia.value || reservaOriginal.tipoEstancia);
+
+        if (!tipoFinal) {
+            mostrarToast("El tipo de estancia no es válido");
+            return;
+        }
+
         const payload = {
             id: Number(id),
-            fechaEntrada: editReservaFechaEntrada.value,
-            fechaSalida: editReservaFechaSalida.value,
-            tipoEstancia: editReservaTipoEstancia.value,
+            fechaEntrada: editReservaFechaEntrada.value || reservaOriginal.fechaEntrada,
+            fechaSalida: editReservaFechaSalida.value || reservaOriginal.fechaSalida,
+            tipoEstancia: tipoFinal,
             servicioRecogida: editReservaRecogida.checked,
             servicioPeluqueria: editReservaPeluqueria.checked,
             observaciones: editReservaObservaciones.value.trim(),
-            estadoReserva: editReservaEstado.value,
+            estadoReserva: editReservaEstado.value || reservaOriginal.estadoReserva || "PENDIENTE",
             precioTotal: reservaOriginal.precioTotal,
             mascota: reservaOriginal.mascota
         };
@@ -547,6 +640,7 @@ if (formEditarReserva) {
 
             cerrarModalReservaFn();
             mostrarToast("Reserva actualizada correctamente");
+
             await cargarReservas();
         } catch (error) {
             console.error(error);
@@ -555,17 +649,16 @@ if (formEditarReserva) {
     });
 }
 
-// ============================
-// MODALES
-// ============================
 function cerrarModalMascotaFn() {
     if (!modalMascota || !formEditarMascota) return;
+
     modalMascota.classList.add("hidden");
     formEditarMascota.reset();
 }
 
 function cerrarModalReservaFn() {
     if (!modalReserva || !formEditarReserva) return;
+
     modalReserva.classList.add("hidden");
     formEditarReserva.reset();
 }
@@ -576,19 +669,22 @@ cerrarModalReserva?.addEventListener("click", cerrarModalReservaFn);
 cancelarModalReserva?.addEventListener("click", cerrarModalReservaFn);
 
 modalMascota?.addEventListener("click", (e) => {
-    if (e.target === modalMascota) cerrarModalMascotaFn();
+    if (e.target === modalMascota) {
+        cerrarModalMascotaFn();
+    }
 });
 
 modalReserva?.addEventListener("click", (e) => {
-    if (e.target === modalReserva) cerrarModalReservaFn();
+    if (e.target === modalReserva) {
+        cerrarModalReservaFn();
+    }
 });
 
-// ============================
-// SESIÓN
-// ============================
 async function cerrarSesion() {
     try {
-        await fetchConSesion(RUTAS.logout, { method: "POST" });
+        await fetchConSesion(RUTAS.logout, {
+            method: "POST"
+        });
     } catch (error) {
         console.error("Error cerrando sesión:", error);
     } finally {
@@ -598,9 +694,6 @@ async function cerrarSesion() {
 
 btnCerrarSesion?.addEventListener("click", cerrarSesion);
 
-// ============================
-// FILTROS
-// ============================
 buscarUsuarios?.addEventListener("input", pintarUsuarios);
 buscarMascotas?.addEventListener("input", pintarMascotas);
 buscarReservas?.addEventListener("input", pintarReservas);
@@ -611,9 +704,19 @@ btnActualizarMascotas?.addEventListener("click", cargarMascotas);
 btnActualizarReservas?.addEventListener("click", cargarReservas);
 btnRefrescarTodo?.addEventListener("click", cargarTodo);
 
-// ============================
-// AUTOREFRESH
-// ============================
+document.querySelectorAll("[data-admin-target]").forEach(card => {
+    card.addEventListener("click", () => {
+        aplicarAccionTarjetaAdmin(card.dataset.adminTarget);
+    });
+});
+
+document.querySelectorAll(".nav-link").forEach(link => {
+    link.addEventListener("click", () => {
+        const destino = link.getAttribute("href")?.replace("#", "");
+        actualizarNavActiva(destino);
+    });
+});
+
 function iniciarAutoRefreshReservas() {
     if (intervaloReservas) {
         clearInterval(intervaloReservas);
@@ -624,12 +727,9 @@ function iniciarAutoRefreshReservas() {
     }, 20000);
 }
 
-// ============================
-// INIT
-// ============================
 async function init() {
-    console.log("INIT admin");
     const accesoValido = await comprobarSesionAdmin();
+
     if (!accesoValido) return;
 
     await cargarTodo();

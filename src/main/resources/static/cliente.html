@@ -3,181 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zona Cliente - Guardería Canina</title>
+    <title>Zona Cliente | Guardería Canina</title>
+
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/cliente.css">
 </head>
 <body>
 
-<header class="topbar">
-    <div class="topbar__left">
-        <h1>Guardería Canina</h1>
-        <p class="subtitulo">Zona privada del cliente</p>
+<header class="cliente-header">
+    <div class="cliente-header__brand">
+        <a href="index.html" class="landing-logo">
+            <span class="landing-logo-icon">🐶</span>
+            <span>Guardería Canina</span>
+        </a>
+        <p>Panel privado para gestionar mascotas, reservas y datos personales</p>
     </div>
 
-    <div class="topbar__right">
+    <div class="cliente-header__actions">
         <span id="usuarioLogueado" class="usuario-logueado">Cargando usuario...</span>
         <button id="btnLogout" class="btn btn-danger" type="button">Cerrar sesión</button>
     </div>
 </header>
 
-<main class="contenedor">
+<main class="cliente-main">
 
-    <section class="hero">
-        <div class="hero__texto">
-            <h2>Bienvenido a tu área de cliente</h2>
+    <section class="cliente-hero">
+        <div class="cliente-hero__content">
+            <span class="hero-badge">Área cliente</span>
+            <h1>Gestiona tus mascotas y reservas</h1>
             <p>
-                Desde aquí podrás gestionar tus mascotas y solicitar reservas
-                de forma rápida y sencilla.
+                Desde este panel puedes actualizar tus datos personales, registrar tus mascotas,
+                solicitar reservas, consultar el estado de cada estancia y revisar el precio estimado.
             </p>
         </div>
+
+        <div class="cliente-hero__card">
+            <span>🐾</span>
+            <strong>Guardería canina en Navalcarnero</strong>
+            <p>Guardería diaria sin pernocta, estancias con noche, transporte y peluquería.</p>
+        </div>
     </section>
 
-    <section class="resumen-reservas">
-        <div class="resumen-reservas__header">
+    <section class="cliente-resumen">
+        <div class="cliente-section-header">
             <div>
-                <h3>Estado de tus reservas</h3>
-                <p id="ultimaActualizacion" class="ultima-actualizacion">Última actualización: --:--:--</p>
+                <span class="section-kicker">Resumen</span>
+                <h2>Estado de tus reservas</h2>
+                <p id="ultimaActualizacion">Última actualización: --:--:--</p>
             </div>
-            <button id="btnRefrescarResumen" class="btn btn-secondary" type="button">Actualizar ahora</button>
+
+            <button id="btnRefrescarResumen" class="btn btn-secondary" type="button">Actualizar</button>
         </div>
 
-        <div class="resumen-grid">
-            <div class="resumen-card resumen-card--total">
+        <div class="cliente-stats-grid">
+            <article class="cliente-stat-card stat-clickable" data-filtro-reserva="TODAS">
                 <span>Total</span>
                 <strong id="contadorTotalReservas">0</strong>
-            </div>
-            <div class="resumen-card resumen-card--pendiente">
+            </article>
+
+            <article class="cliente-stat-card stat-pendiente stat-clickable" data-filtro-reserva="PENDIENTE">
                 <span>Pendientes</span>
                 <strong id="contadorPendientes">0</strong>
-            </div>
-            <div class="resumen-card resumen-card--confirmada">
+            </article>
+
+            <article class="cliente-stat-card stat-confirmada stat-clickable" data-filtro-reserva="CONFIRMADA">
                 <span>Confirmadas</span>
                 <strong id="contadorConfirmadas">0</strong>
-            </div>
-            <div class="resumen-card resumen-card--cancelada">
+            </article>
+
+            <article class="cliente-stat-card stat-cancelada stat-clickable" data-filtro-reserva="CANCELADA">
                 <span>Canceladas</span>
                 <strong id="contadorCanceladas">0</strong>
-            </div>
-            <div class="resumen-card resumen-card--finalizada">
+            </article>
+
+            <article class="cliente-stat-card stat-finalizada stat-clickable" data-filtro-reserva="FINALIZADA">
                 <span>Finalizadas</span>
                 <strong id="contadorFinalizadas">0</strong>
-            </div>
+            </article>
         </div>
     </section>
 
-    <section class="grid-paneles">
+    <section class="cliente-grid cliente-grid-superior">
 
-        <article class="panel">
-            <div class="panel__header">
-                <h3 id="tituloFormMascota">Mis mascotas</h3>
+        <article class="cliente-panel">
+            <div class="cliente-section-header">
+                <div>
+                    <span class="section-kicker">Perfil</span>
+                    <h2>Mi perfil</h2>
+                    <p>Consulta y actualiza tus datos de contacto.</p>
+                </div>
+            </div>
+
+            <div id="perfilResumen" class="card-item perfil-card">
+                <h4 id="perfilResumenNombre">Usuario</h4>
+                <p><strong>Email:</strong> <span id="perfilResumenEmail">-</span></p>
+                <p><strong>Teléfono:</strong> <span id="perfilResumenTelefono">-</span></p>
+
+                <div class="card-actions">
+                    <button id="btnEditarPerfil" type="button" class="btn btn-primary">
+                        Editar perfil
+                    </button>
+                </div>
+            </div>
+
+            <form id="formPerfil" class="cliente-form oculto">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="perfilNombre">Nombre</label>
+                        <input type="text" id="perfilNombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="perfilApellidos">Apellidos</label>
+                        <input type="text" id="perfilApellidos">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="perfilEmail">Correo electrónico</label>
+                        <input type="email" id="perfilEmail" readonly>
+                        <small class="form-help">
+                            El correo electrónico se usa para iniciar sesión y no se modifica desde este panel.
+                        </small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="perfilTelefono">Teléfono</label>
+                        <input type="text" id="perfilTelefono" placeholder="Ej: 600 123 456">
+                        <small class="form-help">
+                            Usaremos este teléfono para avisos relacionados con reservas, recogida o entrega.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="cliente-form-actions">
+                    <button type="submit" id="btnGuardarPerfil" class="btn btn-primary">
+                        Guardar cambios
+                    </button>
+
+                    <button type="button" id="btnCancelarPerfil" class="btn btn-secondary">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </article>
+
+        <article class="cliente-panel">
+            <div class="cliente-section-header">
+                <div>
+                    <span class="section-kicker">Mascotas</span>
+                    <h2 id="tituloFormMascota">Mis mascotas</h2>
+                    <p>Registra los datos principales de cada perro.</p>
+                </div>
+
                 <button id="btnRecargarMascotas" class="btn btn-secondary" type="button">Actualizar</button>
             </div>
 
-            <form id="formMascota" class="formulario">
+            <form id="formMascota" class="cliente-form">
                 <input type="hidden" id="mascotaIdEditar">
 
-                <div class="form-row">
-                    <div class="campo">
+                <div class="form-grid">
+                    <div class="form-group">
                         <label for="nombreMascota">Nombre</label>
-                        <input type="text" id="nombreMascota" required>
+                        <input type="text" id="nombreMascota" placeholder="Ej: Luna" required>
                     </div>
-                    <div class="campo">
+
+                    <div class="form-group">
                         <label for="razaMascota">Raza</label>
-                        <input type="text" id="razaMascota">
+                        <input type="text" id="razaMascota" placeholder="Ej: Labrador">
                     </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="campo">
+                    <div class="form-group">
                         <label for="pesoMascota">Peso (kg)</label>
-                        <input type="number" id="pesoMascota" step="0.1" min="0">
+                        <input type="number" id="pesoMascota" step="0.1" min="0" placeholder="Ej: 12.5">
                     </div>
-                    <div class="campo">
+
+                    <div class="form-group">
                         <label for="edadMascota">Edad (años)</label>
-                        <input type="number" id="edadMascota" min="0">
+                        <input type="number" id="edadMascota" min="0" placeholder="Ej: 4">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="observacionesMascota">Observaciones</label>
+                        <textarea id="observacionesMascota" rows="3" placeholder="Alergias, comportamiento, cuidados especiales..."></textarea>
                     </div>
                 </div>
 
-                <div class="campo">
-                    <label for="observacionesMascota">Observaciones</label>
-                    <textarea id="observacionesMascota" rows="3"></textarea>
-                </div>
-
-                <div class="acciones-formulario">
+                <div class="cliente-form-actions">
                     <button type="submit" id="btnGuardarMascota" class="btn btn-primary">Guardar mascota</button>
                     <button type="button" id="btnCancelarEdicionMascota" class="btn btn-secondary oculto">Cancelar edición</button>
                 </div>
             </form>
 
-            <div id="listaMascotas" class="lista-cards"></div>
-        </article>
-
-        <article class="panel">
-            <div class="panel__header">
-                <h3 id="tituloFormReserva">Mis reservas</h3>
-                <button id="btnRecargarReservas" class="btn btn-secondary" type="button">Actualizar</button>
-            </div>
-
-            <form id="formReserva" class="formulario">
-                <input type="hidden" id="reservaIdEditar">
-
-                <div class="campo">
-                    <label for="selectMascotaReserva">Mascota</label>
-                    <select id="selectMascotaReserva" required>
-                        <option value="">Selecciona una mascota</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="campo">
-                        <label for="fechaEntrada">Fecha entrada</label>
-                        <input type="date" id="fechaEntrada" required>
-                    </div>
-                    <div class="campo">
-                        <label for="fechaSalida">Fecha salida</label>
-                        <input type="date" id="fechaSalida" required>
-                    </div>
-                </div>
-
-                <div class="campo">
-                    <label for="tipoEstancia">Tipo de estancia</label>
-                    <select id="tipoEstancia" required>
-                        <option value="">Selecciona tipo</option>
-                        <option value="DIA">Día</option>
-                        <option value="LARGA_ESTANCIA">Larga estancia</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <label class="check-linea">
-                        <input type="checkbox" id="servicioRecogida">
-                        Servicio de recogida
-                    </label>
-
-                    <label class="check-linea">
-                        <input type="checkbox" id="servicioPeluqueria">
-                        Servicio de peluquería
-                    </label>
-                </div>
-
-                <div class="campo">
-                    <label for="observacionesReserva">Observaciones</label>
-                    <textarea id="observacionesReserva" rows="3"></textarea>
-                </div>
-
-                <div class="acciones-formulario">
-                    <button type="submit" id="btnGuardarReserva" class="btn btn-primary">Crear reserva</button>
-                    <button type="button" id="btnCancelarEdicionReserva" class="btn btn-secondary oculto">Cancelar edición</button>
-                </div>
-            </form>
-
-            <div id="listaReservas" class="lista-cards"></div>
+            <div id="listaMascotas" class="cliente-lista-cards"></div>
         </article>
 
     </section>
 
+    <section class="cliente-reservas-full">
+        <article class="cliente-panel" id="panelReservasCliente">
+            <div class="cliente-section-header">
+                <div>
+                    <span class="section-kicker">Reservas</span>
+                    <h2 id="tituloFormReserva">Mis reservas</h2>
+                    <p id="textoFiltroReservas">Solicita una estancia y revisa el precio estimado.</p>
+                </div>
+
+                <div class="cliente-form-actions">
+                    <select id="filtroReservasCliente" class="select-filtro">
+                        <option value="TODAS">Todas</option>
+                        <option value="PENDIENTE">Pendientes</option>
+                        <option value="CONFIRMADA">Confirmadas</option>
+                        <option value="CANCELADA">Canceladas</option>
+                        <option value="FINALIZADA">Finalizadas</option>
+                    </select>
+
+                    <button id="btnMostrarTodasReservas" class="btn btn-secondary oculto" type="button">Ver todas</button>
+                    <button id="btnRecargarReservas" class="btn btn-secondary" type="button">Actualizar</button>
+                </div>
+            </div>
+
+            <div class="reservas-layout">
+                <form id="formReserva" class="cliente-form reserva-form-horizontal">
+                    <input type="hidden" id="reservaIdEditar">
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="selectMascotaReserva">Mascota</label>
+                            <select id="selectMascotaReserva" required>
+                                <option value="">Selecciona una mascota</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fechaEntrada">Fecha entrada</label>
+                            <input type="date" id="fechaEntrada" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fechaSalida">Fecha salida</label>
+                            <input type="date" id="fechaSalida" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="tipoEstancia">Tipo de estancia</label>
+                            <select id="tipoEstancia" required>
+                                <option value="">Selecciona tipo</option>
+                                <option value="GUARDERIA_DIA">Guardería diaria sin pernocta - 18 €/día</option>
+                                <option value="ESTANCIA">Estancia con pernocta - 25 €/día</option>
+                            </select>
+                            <small class="form-help">
+                                Guardería diaria: el perro viene y vuelve a casa cada día. Estancia: el perro duerme en la guardería.
+                            </small>
+                        </div>
+
+                        <div class="form-group checkbox-card">
+                            <label>
+                                <input type="checkbox" id="servicioRecogida">
+                                <span>
+                                    <strong>Transporte: recogida y entrega</strong>
+                                    <small>Suplemento de 10 €. Indica horarios aproximados en observaciones.</small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-card">
+                            <label>
+                                <input type="checkbox" id="servicioPeluqueria">
+                                <span>
+                                    <strong>Servicio de peluquería</strong>
+                                    <small>Suplemento de 15 €</small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="observacionesReserva">Observaciones</label>
+                            <textarea id="observacionesReserva" rows="3" placeholder="Indica alergias, cuidados, horarios aproximados de recogida/entrega o cualquier información importante..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="cliente-form-actions">
+                        <button type="submit" id="btnGuardarReserva" class="btn btn-primary">Crear reserva</button>
+                        <button type="button" id="btnCancelarEdicionReserva" class="btn btn-secondary oculto">Cancelar edición</button>
+                    </div>
+                </form>
+
+                <div class="reserva-side-info">
+                    <div id="ocupacionReserva" class="ocupacion-resumen ocupacion-neutral">
+                        <div>
+                            <span class="section-kicker">Disponibilidad</span>
+                            <h3>Plazas disponibles</h3>
+                            <p id="ocupacionMensaje">Selecciona fecha de entrada y salida para consultar plazas.</p>
+                        </div>
+
+                        <div class="ocupacion-datos">
+                            <div>
+                                <span>Disponibles</span>
+                                <strong id="ocupacionPlazasDisponibles">-</strong>
+                            </div>
+                            <div>
+                                <span>Ocupación máxima</span>
+                                <strong id="ocupacionMaxima">-</strong>
+                            </div>
+                            <div>
+                                <span>Capacidad</span>
+                                <strong id="ocupacionCapacidad">40</strong>
+                            </div>
+                        </div>
+
+                        <p id="ocupacionFechaMasOcupada" class="ocupacion-detalle"></p>
+                    </div>
+
+                    <div id="resumenPrecioReserva" class="precio-resumen">
+                        <h3>Resumen estimado del precio</h3>
+
+                        <div class="precio-linea">
+                            <span>Tipo de estancia</span>
+                            <strong id="precioTipoEstancia">-</strong>
+                        </div>
+
+                        <div class="precio-linea">
+                            <span>Días calculados</span>
+                            <strong id="precioDias">-</strong>
+                        </div>
+
+                        <div class="precio-linea">
+                            <span>Precio base</span>
+                            <strong id="precioBase">-</strong>
+                        </div>
+
+                        <div class="precio-linea">
+                            <span>Transporte recogida/entrega</span>
+                            <strong id="precioRecogida">0.00 €</strong>
+                        </div>
+
+                        <div class="precio-linea">
+                            <span>Servicio de peluquería</span>
+                            <strong id="precioPeluqueria">0.00 €</strong>
+                        </div>
+
+                        <div class="precio-total">
+                            <span>Total estimado</span>
+                            <strong id="precioTotalEstimado">0.00 €</strong>
+                        </div>
+
+                        <p>El precio final se calcula automáticamente en el servidor al guardar la reserva.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="listaReservas" class="cliente-lista-cards reservas-listado"></div>
+        </article>
+    </section>
+
     <section id="zonaMensajes" class="zona-mensajes"></section>
+
 </main>
 
 <script src="js/cliente.js"></script>

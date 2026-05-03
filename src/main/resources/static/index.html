@@ -2,41 +2,224 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Guardería Canina</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardería Canina | Cuidado, reservas y estancias</title>
+
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<script>
-    const API_BASE = "http://localhost:8081";
+<header class="landing-header">
+    <div class="landing-container landing-nav">
+        <a href="index.html" class="landing-logo">
+            <span class="landing-logo-icon">🐶</span>
+            <span>Guardería Canina</span>
+        </a>
 
-    async function comprobarSesion() {
-        try {
-            const response = await fetch(`${API_BASE}/api/auth/me`, {
-                method: "GET",
-                credentials: "include"
-            });
+        <nav class="landing-menu">
+            <a href="#servicios">Servicios</a>
+            <a href="#tarifas">Tarifas</a>
+            <a href="#funcionamiento">Cómo funciona</a>
+            <a href="login.html" class="btn btn-secondary">Acceder</a>
+            <a href="registro.html" class="btn btn-primary">Registrarse</a>
+        </nav>
+    </div>
+</header>
 
-            if (!response.ok) {
-                window.location.href = "/login.html";
-                return;
-            }
+<main>
 
-            const usuario = await response.json();
-            const rol = (usuario.rol || "").trim().toUpperCase();
+    <section class="landing-hero">
+        <div class="landing-container hero-grid">
+            <div class="hero-content">
+                <span class="hero-badge">Centro de cuidado canino</span>
+                <h1>Reserva la estancia de tu perro de forma sencilla y segura</h1>
+                <p>
+                    Gestión online para guardería de día, estancias largas, recogida y servicios de peluquería.
+                    Registra a tu mascota, crea una reserva y consulta su estado desde el área de cliente.
+                </p>
 
-            if (rol === "ADMIN") {
-                window.location.href = "/admin.html";
-            } else {
-                window.location.href = "/cliente.html";
-            }
+                <div class="hero-actions">
+                    <a href="registro.html" class="btn btn-primary btn-lg">Crear cuenta</a>
+                    <a href="login.html" class="btn btn-outline btn-lg">Ya tengo cuenta</a>
+                </div>
 
-        } catch (error) {
-            window.location.href = "/login.html";
-        }
-    }
+                <div class="hero-info">
+                    <div>
+                        <strong>40</strong>
+                        <span>plazas disponibles</span>
+                    </div>
+                    <div>
+                        <strong>12.000 m²</strong>
+                        <span>zona exterior</span>
+                    </div>
+                    <div>
+                        <strong>Online</strong>
+                        <span>reservas y seguimiento</span>
+                    </div>
+                </div>
+            </div>
 
-    comprobarSesion();
-</script>
+            <div class="hero-card">
+                <div class="hero-card-img">🐕</div>
+                <h2>Servicios personalizados</h2>
+                <p>
+                    Cuidamos de cada perro según sus necesidades: alimentación, observaciones,
+                    alergias, comportamiento y servicios extra.
+                </p>
+                <ul>
+                    <li>✔ Alta de mascotas</li>
+                    <li>✔ Reservas por fechas</li>
+                    <li>✔ Estado pendiente / confirmada</li>
+                    <li>✔ Cálculo automático de precio</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicios" class="landing-section">
+        <div class="landing-container">
+            <div class="section-heading">
+                <span>Servicios</span>
+                <h2>Todo lo necesario para gestionar una estancia</h2>
+                <p>La aplicación permite organizar clientes, mascotas y reservas desde una plataforma sencilla.</p>
+            </div>
+
+            <div class="landing-cards">
+                <article class="landing-card">
+                    <div class="card-icon">🏡</div>
+                    <h3>Guardería de día</h3>
+                    <p>Servicio diario para perros con atención, vigilancia y espacios de paseo.</p>
+                </article>
+
+                <article class="landing-card">
+                    <div class="card-icon">🌙</div>
+                    <h3>Estancias largas</h3>
+                    <p>Reservas de varios días para periodos de vacaciones, viajes o necesidades familiares.</p>
+                </article>
+
+                <article class="landing-card">
+                    <div class="card-icon">🚐</div>
+                    <h3>Recogida</h3>
+                    <p>Servicio adicional de recogida para facilitar la entrega de la mascota.</p>
+                </article>
+
+                <article class="landing-card">
+                    <div class="card-icon">✂️</div>
+                    <h3>Peluquería</h3>
+                    <p>Servicio extra de higiene y peluquería asociado a la reserva.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="tarifas" class="landing-section section-alt">
+        <div class="landing-container">
+            <div class="section-heading">
+                <span>Tarifas</span>
+                <h2>Precios claros y calculados automáticamente</h2>
+                <p>El sistema calcula el precio final según fechas, tipo de estancia y servicios extra.</p>
+            </div>
+
+            <div class="price-grid">
+                <article class="price-card">
+                    <h3>Guardería de día</h3>
+                    <p class="price">18 € <span>/ día</span></p>
+                    <ul>
+                        <li>Reserva por fecha</li>
+                        <li>Ideal para días sueltos</li>
+                        <li>Estado pendiente hasta confirmación</li>
+                    </ul>
+                </article>
+
+                <article class="price-card featured">
+                    <div class="featured-label">Más completa</div>
+                    <h3>Estancia</h3>
+                    <p class="price">25 € <span>/ día</span></p>
+                    <ul>
+                        <li>Para varios días</li>
+                        <li>Cálculo automático por duración</li>
+                        <li>Gestión desde panel cliente</li>
+                    </ul>
+                </article>
+
+                <article class="price-card">
+                    <h3>Extras</h3>
+                    <p class="price">+10 / +15 €</p>
+                    <ul>
+                        <li>Recogida: +10 €</li>
+                        <li>Peluquería: +15 €</li>
+                        <li>Importe sumado al total</li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="funcionamiento" class="landing-section">
+        <div class="landing-container">
+            <div class="section-heading">
+                <span>Proceso</span>
+                <h2>Funcionamiento del sistema</h2>
+                <p>Flujo lógico de uso: cliente, mascota y reserva.</p>
+            </div>
+
+            <div class="steps-grid">
+                <article class="step-card">
+                    <span>1</span>
+                    <h3>Registro del cliente</h3>
+                    <p>El usuario crea una cuenta y accede a su área privada.</p>
+                </article>
+
+                <article class="step-card">
+                    <span>2</span>
+                    <h3>Alta de mascota</h3>
+                    <p>Se registran datos como nombre, raza, peso, edad y observaciones.</p>
+                </article>
+
+                <article class="step-card">
+                    <span>3</span>
+                    <h3>Creación de reserva</h3>
+                    <p>El cliente selecciona fechas, tipo de estancia y servicios adicionales.</p>
+                </article>
+
+                <article class="step-card">
+                    <span>4</span>
+                    <h3>Confirmación</h3>
+                    <p>El administrador revisa la reserva y actualiza su estado.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-section final-cta">
+        <div class="landing-container cta-box">
+            <div>
+                <h2>Accede al sistema de reservas</h2>
+                <p>Gestiona tus mascotas, crea reservas y consulta el estado actualizado desde tu panel.</p>
+            </div>
+
+            <div class="cta-actions">
+                <a href="registro.html" class="btn btn-primary btn-lg">Registrarse</a>
+                <a href="login.html" class="btn btn-outline btn-lg">Iniciar sesión</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="landing-footer">
+    <div class="landing-container footer-grid">
+        <div>
+            <strong>🐶 Guardería Canina</strong>
+            <p>Proyecto final DAM - Gestión de usuarios, mascotas y reservas.</p>
+        </div>
+
+        <div>
+            <a href="login.html">Acceso clientes</a>
+            <a href="login.html">Acceso administración</a>
+        </div>
+    </div>
+</footer>
 
 </body>
 </html>

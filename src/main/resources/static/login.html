@@ -3,39 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Guardería Canina</title>
+    <title>Acceso | Guardería Canina</title>
+
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
 
-<main class="login-page">
-    <section class="login-card">
-        <h1>Guardería Canina</h1>
-        <p class="login-subtitle">Accede a tu zona privada</p>
+<header class="landing-header">
+    <div class="landing-container landing-nav">
+        <a href="index.html" class="landing-logo">
+            <span class="landing-logo-icon">🐶</span>
+            <span>Guardería Canina</span>
+        </a>
 
-        <form id="loginForm" class="login-form">
-            <div class="campo">
+        <nav class="landing-menu">
+            <a href="index.html">Inicio</a>
+            <a href="registro.html" class="btn btn-primary">Registrarse</a>
+        </nav>
+    </div>
+</header>
+
+<main class="auth-wrapper">
+    <section class="auth-card">
+
+        <div class="auth-header">
+            <h1>Iniciar sesión</h1>
+            <p>Accede a tu panel de cliente o administración</p>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+
+            <div class="form-group">
                 <label for="email">Correo electrónico</label>
-                <input type="email" id="email" required>
+                <input type="email" id="email" placeholder="ejemplo@email.com" required>
             </div>
 
-            <div class="campo">
+            <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+            <button type="submit" class="btn btn-primary submit-btn">
+                Iniciar sesión
+            </button>
+
         </form>
 
         <div id="mensaje" class="mensaje-login"></div>
 
-        <p class="login-extra">
-            ¿No tienes cuenta?
-            <a href="/registro.html">Regístrate aquí</a>
-        </p>
+        <div class="auth-links">
+            <button type="button" id="btnRecuperarPassword" class="link-button">
+                ¿Olvidaste tu contraseña?
+            </button>
+        </div>
+
+        <div class="auth-footer">
+            <p>¿No tienes cuenta?</p>
+            <a href="registro.html">Crear cuenta</a>
+        </div>
+
     </section>
 </main>
+
+<footer class="landing-footer">
+    <div class="landing-container footer-grid">
+        <div>
+            <strong>🐶 Guardería Canina</strong>
+            <p>Acceso seguro al sistema de reservas</p>
+        </div>
+    </div>
+</footer>
 
 <script src="js/login.js"></script>
 </body>

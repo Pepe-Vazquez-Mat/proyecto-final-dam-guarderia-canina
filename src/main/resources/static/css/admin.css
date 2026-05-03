@@ -13,20 +13,26 @@ body {
     color: #1f2937;
 }
 
+/* ============================
+   LAYOUT ADMIN
+============================ */
+
 .admin-layout {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 280px 1fr;
     min-height: 100vh;
 }
 
 .sidebar {
-    background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.28), transparent 35%),
+        linear-gradient(180deg, #0f172a 0%, #111827 100%);
     color: #ffffff;
     padding: 24px 18px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 24px;
+    gap: 28px;
     position: sticky;
     top: 0;
     height: 100vh;
@@ -39,25 +45,25 @@ body {
 }
 
 .brand-logo {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
     background: rgba(255, 255, 255, 0.14);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 26px;
 }
 
 .brand h1 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
 }
 
 .brand p {
     margin: 4px 0 0;
     color: #cbd5e1;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
 }
 
 .sidebar-nav {
@@ -67,18 +73,22 @@ body {
 }
 
 .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     color: #e5e7eb;
     text-decoration: none;
-    padding: 12px 14px;
-    border-radius: 12px;
+    padding: 13px 14px;
+    border-radius: 14px;
     transition: 0.2s ease;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .nav-link:hover,
 .nav-link.active {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
     color: #ffffff;
+    transform: translateX(3px);
 }
 
 .sidebar-footer {
@@ -88,29 +98,55 @@ body {
 }
 
 .main-content {
-    padding: 28px;
+    padding: 30px;
 }
+
+/* ============================
+   TOPBAR
+============================ */
 
 .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 26px;
+    padding: 22px;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
 }
 
 .topbar h2 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 1.9rem;
+    color: #0f172a;
 }
 
 .topbar p {
     margin: 6px 0 0;
-    color: #6b7280;
+    color: #64748b;
 }
 
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.usuario-logueado {
+    font-weight: 800;
+    color: #334155;
+}
+
+/* ============================
+   SECCIONES
+============================ */
+
 .section {
-    margin-bottom: 28px;
+    margin-bottom: 30px;
 }
 
 .section-header {
@@ -118,18 +154,19 @@ body {
     justify-content: space-between;
     gap: 16px;
     align-items: flex-start;
-    margin-bottom: 14px;
+    margin-bottom: 15px;
     flex-wrap: wrap;
 }
 
 .section-header h3 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.35rem;
+    color: #0f172a;
 }
 
 .section-header p {
-    margin: 4px 0 0;
-    color: #6b7280;
+    margin: 5px 0 0;
+    color: #64748b;
 }
 
 .section-actions,
@@ -140,6 +177,10 @@ body {
     flex-wrap: wrap;
 }
 
+/* ============================
+   STATS
+============================ */
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(180px, 1fr));
@@ -148,28 +189,65 @@ body {
 
 .stat-card {
     background: #ffffff;
-    border-radius: 18px;
-    padding: 20px;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
     border: 1px solid #e5e7eb;
+    transition: 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
+}
+
+.stat-card-clickable {
+    cursor: pointer;
+    position: relative;
+}
+
+.stat-card-clickable:hover {
+    border-color: #2563eb;
+    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.16);
+}
+
+.stat-card-clickable::after {
+    content: "Ver";
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    color: #2563eb;
+    font-size: 0.72rem;
+    font-weight: 900;
+    opacity: 0;
+    transition: 0.2s ease;
+}
+
+.stat-card-clickable:hover::after {
+    opacity: 1;
 }
 
 .stat-label {
     display: block;
-    color: #6b7280;
+    color: #64748b;
     font-size: 0.95rem;
     margin-bottom: 10px;
+    font-weight: 800;
 }
 
 .stat-card strong {
-    font-size: 2rem;
+    font-size: 2.25rem;
     color: #111827;
 }
 
+/* ============================
+   TABLAS
+============================ */
+
 .table-card {
     background: #ffffff;
-    border-radius: 18px;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
     border: 1px solid #e5e7eb;
     overflow: hidden;
 }
@@ -186,33 +264,46 @@ table {
 }
 
 thead {
-    background: #f9fafb;
+    background: #f8fafc;
 }
 
-th, td {
-    padding: 14px 12px;
+th,
+td {
+    padding: 15px 13px;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
     vertical-align: top;
-    font-size: 0.95rem;
+    font-size: 0.94rem;
 }
 
 th {
-    color: #374151;
-    font-size: 0.88rem;
+    color: #334155;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
+    font-weight: 900;
 }
 
 tbody tr:hover {
-    background: #fafcff;
+    background: #f8fbff;
 }
 
 .empty-cell {
     text-align: center;
-    color: #6b7280;
-    padding: 24px;
+    color: #64748b;
+    padding: 26px;
+    font-weight: 700;
 }
+
+.observaciones-cell {
+    max-width: 260px;
+    white-space: normal;
+    color: #4b5563;
+}
+
+/* ============================
+   FORMULARIOS / FILTROS
+============================ */
 
 .input-busqueda,
 .select-filtro,
@@ -220,17 +311,17 @@ tbody tr:hover {
 .form-group select,
 .form-group textarea {
     width: 100%;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 13px;
     padding: 11px 13px;
     font-size: 0.95rem;
     background: #ffffff;
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .input-busqueda {
-    min-width: 250px;
+    min-width: 260px;
 }
 
 .input-busqueda:focus,
@@ -242,14 +333,22 @@ tbody tr:hover {
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
+/* ============================
+   BOTONES
+============================ */
+
 .btn {
     border: none;
-    border-radius: 12px;
+    border-radius: 13px;
     padding: 11px 16px;
     cursor: pointer;
-    font-weight: 700;
-    font-size: 0.95rem;
-    transition: transform 0.15s ease, opacity 0.2s ease;
+    font-weight: 800;
+    font-size: 0.94rem;
+    transition: 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn:hover {
@@ -261,9 +360,17 @@ tbody tr:hover {
     color: #ffffff;
 }
 
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
 .btn-secondary {
     background: #e5e7eb;
     color: #111827;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
 }
 
 .btn-danger {
@@ -271,14 +378,22 @@ tbody tr:hover {
     color: #ffffff;
 }
 
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
 .btn-warning {
     background: #f59e0b;
     color: #ffffff;
 }
 
+.btn-warning:hover {
+    background: #d97706;
+}
+
 .btn-sm {
     padding: 8px 12px;
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     border-radius: 10px;
 }
 
@@ -288,38 +403,52 @@ tbody tr:hover {
     gap: 8px;
 }
 
+/* ============================
+   BADGES
+============================ */
+
 .badge {
-    display: inline-block;
-    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 11px;
     border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.78rem;
+    font-weight: 900;
 }
 
 .badge-pendiente {
-    background: #fef3c7;
-    color: #92400e;
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
 }
 
 .badge-confirmada {
     background: #dbeafe;
     color: #1d4ed8;
+    border: 1px solid #93c5fd;
 }
 
 .badge-cancelada {
     background: #fee2e2;
-    color: #b91c1c;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
 }
 
 .badge-finalizada {
     background: #dcfce7;
     color: #166534;
+    border: 1px solid #86efac;
 }
+
+/* ============================
+   MODALES
+============================ */
 
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(17, 24, 39, 0.62);
+    background: rgba(15, 23, 42, 0.68);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -335,9 +464,9 @@ tbody tr:hover {
     width: 100%;
     max-width: 700px;
     background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
-    padding: 24px;
+    border-radius: 22px;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+    padding: 26px;
 }
 
 .modal-lg {
@@ -354,12 +483,16 @@ tbody tr:hover {
 
 .modal-header h3 {
     margin: 0;
+    color: #0f172a;
 }
 
 .modal-close {
-    background: transparent;
+    width: 38px;
+    height: 38px;
+    background: #f1f5f9;
     border: none;
-    font-size: 1.3rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
     cursor: pointer;
     color: #374151;
 }
@@ -377,7 +510,7 @@ tbody tr:hover {
 }
 
 .form-group label {
-    font-weight: 700;
+    font-weight: 800;
     font-size: 0.92rem;
     color: #374151;
 }
@@ -394,16 +527,24 @@ tbody tr:hover {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 600;
+    font-weight: 700;
     height: 100%;
+}
+
+.checkbox-group input {
+    width: auto;
 }
 
 .modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 6px;
+    margin-top: 8px;
 }
+
+/* ============================
+   TOAST
+============================ */
 
 .toast {
     position: fixed;
@@ -411,18 +552,17 @@ tbody tr:hover {
     bottom: 22px;
     background: #111827;
     color: #ffffff;
-    padding: 14px 18px;
-    border-radius: 12px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    padding: 15px 18px;
+    border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
     z-index: 10000;
     min-width: 250px;
+    font-weight: 700;
 }
 
-.observaciones-cell {
-    max-width: 250px;
-    white-space: normal;
-    color: #4b5563;
-}
+/* ============================
+   RESPONSIVE
+============================ */
 
 @media (max-width: 1100px) {
     .admin-layout {
@@ -432,6 +572,12 @@ tbody tr:hover {
     .sidebar {
         position: relative;
         height: auto;
+        border-radius: 0 0 24px 24px;
+    }
+
+    .sidebar-nav {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
     }
 
     .stats-grid {
@@ -439,7 +585,7 @@ tbody tr:hover {
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
     .main-content {
         padding: 18px;
     }
@@ -449,15 +595,69 @@ tbody tr:hover {
         align-items: stretch;
     }
 
+    .topbar-actions,
+    .topbar-actions .btn {
+        width: 100%;
+    }
+
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .sidebar-nav {
+        grid-template-columns: 1fr 1fr;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
     }
 
-    .input-busqueda {
+    .input-busqueda,
+    .select-filtro {
         min-width: 100%;
+    }
+
+    .section-actions,
+    .section-actions .btn,
+    .section-actions-wrap,
+    .section-actions-wrap .btn {
+        width: 100%;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .modal-actions .btn {
+        width: 100%;
+    }
+
+    .toast {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand {
+        align-items: flex-start;
+    }
+
+    .sidebar-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar h2 {
+        font-size: 1.55rem;
+    }
+
+    .stat-card strong {
+        font-size: 2rem;
     }
 }

@@ -11,12 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cliente-reservas")
 public class ClienteReservaController {
+
+    private static final int CAPACIDAD_MAXIMA_PERROS = 40;
 
     private final ReservaRepository reservaRepository;
     private final MascotaRepository mascotaRepository;
@@ -59,26 +62,24 @@ public class ClienteReservaController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes reservar para esta mascota");
         }
 
-        if (reserva.getFechaEntrada() == null || reserva.getFechaSalida() == null) {
-            return ResponseEntity.badRequest().body("Fecha de entrada y salida obligatorias");
+        String error = validarReserva(reserva);
+        if (error != null) {
+            return ResponseEntity.badRequest().body(error);
         }
 
-        if (reserva.getFechaSalida().isBefore(reserva.getFechaEntrada())) {
-            return ResponseEntity.badRequest().body("La fecha de salida no puede ser anterior a la de entrada");
+        String errorOcupacion = validarOcupacionDisponible(
+                reserva.getFechaEntrada(),
+                reserva.getFechaSalida(),
+                null
+        );
+
+        if (errorOcupacion != null) {
+            return ResponseEntity.badRequest().body(errorOcupacion);
         }
 
-        if (reserva.getTipoEstancia() == null || reserva.getTipoEstancia().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("El tipo de estancia es obligatorio");
-        }
+        normalizarExtras(reserva);
 
-        if (reserva.getServicioRecogida() == null) {
-            reserva.setServicioRecogida(false);
-        }
-
-        if (reserva.getServicioPeluqueria() == null) {
-            reserva.setServicioPeluqueria(false);
-        }
-
+        reserva.setId(null);
         reserva.setMascota(mascota);
         reserva.setEstadoReserva("PENDIENTE");
         reserva.setPrecioTotal(calcularPrecio(reserva));
@@ -109,24 +110,29 @@ public class ClienteReservaController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes editar esta reserva");
         }
 
-        if (datosReserva.getFechaEntrada() == null || datosReserva.getFechaSalida() == null) {
-            return ResponseEntity.badRequest().body("Fecha de entrada y salida obligatorias");
+        String error = validarReserva(datosReserva);
+        if (error != null) {
+            return ResponseEntity.badRequest().body(error);
         }
 
-        if (datosReserva.getFechaSalida().isBefore(datosReserva.getFechaEntrada())) {
-            return ResponseEntity.badRequest().body("La fecha de salida no puede ser anterior a la de entrada");
+        String errorOcupacion = validarOcupacionDisponible(
+                datosReserva.getFechaEntrada(),
+                datosReserva.getFechaSalida(),
+                reserva.getId()
+        );
+
+        if (errorOcupacion != null) {
+            return ResponseEntity.badRequest().body(errorOcupacion);
         }
 
-        if (datosReserva.getTipoEstancia() == null || datosReserva.getTipoEstancia().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("El tipo de estancia es obligatorio");
-        }
+        normalizarExtras(datosReserva);
 
         reserva.setFechaEntrada(datosReserva.getFechaEntrada());
         reserva.setFechaSalida(datosReserva.getFechaSalida());
         reserva.setObservaciones(datosReserva.getObservaciones());
         reserva.setTipoEstancia(datosReserva.getTipoEstancia());
-        reserva.setServicioRecogida(datosReserva.getServicioRecogida() != null ? datosReserva.getServicioRecogida() : false);
-        reserva.setServicioPeluqueria(datosReserva.getServicioPeluqueria() != null ? datosReserva.getServicioPeluqueria() : false);
+        reserva.setServicioRecogida(datosReserva.getServicioRecogida());
+        reserva.setServicioPeluqueria(datosReserva.getServicioPeluqueria());
         reserva.setEstadoReserva("PENDIENTE");
         reserva.setPrecioTotal(calcularPrecio(reserva));
 
@@ -158,26 +164,131 @@ public class ClienteReservaController {
         return ResponseEntity.ok("Reserva eliminada correctamente");
     }
 
-    private BigDecimal calcularPrecio(Reserva reserva) {
-        long dias = ChronoUnit.DAYS.between(reserva.getFechaEntrada(), reserva.getFechaSalida());
+    private String validarReserva(Reserva reserva) {
+        if (reserva.getFechaEntrada() == null || reserva.getFechaSalida() == null) {
+            return "Fecha de entrada y salida obligatorias";
+        }
 
-        if (dias <= 0) {
+        if (reserva.getFechaSalida().isBefore(reserva.getFechaEntrada())) {
+            return "La fecha de salida no puede ser anterior a la de entrada";
+        }
+
+        if (reserva.getTipoEstancia() == null || reserva.getTipoEstancia().trim().isEmpty()) {
+            return "El tipo de estancia es obligatorio";
+        }
+
+        String tipo = reserva.getTipoEstancia().toUpperCase().trim();
+
+        if (tipo.equals("GUARDERIA_DIA") || tipo.equals("GUARDERIA") || tipo.equals("DIA")) {
+            reserva.setTipoEstancia("GUARDERIA_DIA");
+            return null;
+        }
+
+        if (tipo.equals("ESTANCIA") || tipo.equals("LARGA_ESTANCIA") || tipo.equals("ESTANCIA_LARGA")) {
+            reserva.setTipoEstancia("ESTANCIA");
+            return null;
+        }
+
+        return "Tipo de estancia no válido. Usa GUARDERIA_DIA o ESTANCIA.";
+    }
+
+    private String validarOcupacionDisponible(LocalDate fechaEntrada,
+                                              LocalDate fechaSalida,
+                                              Long reservaIdExcluida) {
+        LocalDate fechaActual = fechaEntrada;
+
+        while (!fechaActual.isAfter(fechaSalida)) {
+            long reservasActivas;
+
+            if (reservaIdExcluida == null) {
+                reservasActivas = reservaRepository.contarReservasOcupandoPlazaEnFecha(fechaActual);
+            } else {
+                reservasActivas = reservaRepository.contarReservasOcupandoPlazaEnFechaExcluyendoReserva(
+                        fechaActual,
+                        reservaIdExcluida
+                );
+            }
+
+            if (reservasActivas >= CAPACIDAD_MAXIMA_PERROS) {
+                LocalDate primeraFechaLibre = buscarPrimeraFechaLibre(fechaActual, reservaIdExcluida);
+
+                return "No hay plazas disponibles para el día "
+                        + fechaActual
+                        + ". La primera fecha libre aproximada es "
+                        + primeraFechaLibre
+                        + ".";
+            }
+
+            fechaActual = fechaActual.plusDays(1);
+        }
+
+        return null;
+    }
+
+    private LocalDate buscarPrimeraFechaLibre(LocalDate desdeFecha, Long reservaIdExcluida) {
+        LocalDate fecha = desdeFecha;
+
+        for (int i = 0; i < 90; i++) {
+            long reservasActivas;
+
+            if (reservaIdExcluida == null) {
+                reservasActivas = reservaRepository.contarReservasOcupandoPlazaEnFecha(fecha);
+            } else {
+                reservasActivas = reservaRepository.contarReservasOcupandoPlazaEnFechaExcluyendoReserva(
+                        fecha,
+                        reservaIdExcluida
+                );
+            }
+
+            if (reservasActivas < CAPACIDAD_MAXIMA_PERROS) {
+                return fecha;
+            }
+
+            fecha = fecha.plusDays(1);
+        }
+
+        return fecha;
+    }
+
+    private void normalizarExtras(Reserva reserva) {
+        if (reserva.getServicioRecogida() == null) {
+            reserva.setServicioRecogida(false);
+        }
+
+        if (reserva.getServicioPeluqueria() == null) {
+            reserva.setServicioPeluqueria(false);
+        }
+    }
+
+    private BigDecimal calcularPrecio(Reserva reserva) {
+        long dias = ChronoUnit.DAYS.between(reserva.getFechaEntrada(), reserva.getFechaSalida()) + 1;
+
+        if (dias < 1) {
             dias = 1;
         }
 
-        BigDecimal precioPorDia = BigDecimal.valueOf(20.0);
-        BigDecimal total = precioPorDia.multiply(BigDecimal.valueOf(dias));
+        BigDecimal precioPorDia;
 
-        if ("LARGA_ESTANCIA".equalsIgnoreCase(reserva.getTipoEstancia())) {
-            total = total.multiply(BigDecimal.valueOf(0.90));
+        switch (reserva.getTipoEstancia()) {
+            case "GUARDERIA_DIA":
+                precioPorDia = BigDecimal.valueOf(18);
+                break;
+            case "ESTANCIA":
+                precioPorDia = BigDecimal.valueOf(25);
+                break;
+            default:
+                precioPorDia = BigDecimal.ZERO;
+                break;
         }
 
+        BigDecimal total = precioPorDia.multiply(BigDecimal.valueOf(dias));
+
         if (Boolean.TRUE.equals(reserva.getServicioRecogida())) {
-            total = total.add(BigDecimal.valueOf(10.0));
+            total = total.add(BigDecimal.valueOf(10));
         }
 
         if (Boolean.TRUE.equals(reserva.getServicioPeluqueria())) {
-            total = total.add(BigDecimal.valueOf(15.0));
+            total = total.add(BigDecimal.valueOf(15));
         }
 
         return total;

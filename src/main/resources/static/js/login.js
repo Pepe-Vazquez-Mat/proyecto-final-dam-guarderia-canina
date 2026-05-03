@@ -4,12 +4,14 @@ const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const mensaje = document.getElementById("mensaje");
+const btnRecuperarPassword = document.getElementById("btnRecuperarPassword");
 
 function mostrarMensaje(texto, tipo = "error") {
     mensaje.textContent = texto;
     mensaje.className = `mensaje-login ${tipo}`;
 }
 
+// LOGIN
 loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -50,4 +52,12 @@ loginForm.addEventListener("submit", async (event) => {
         console.error(error);
         mostrarMensaje(error.message || "Error al iniciar sesión", "error");
     }
+});
+
+// RECUPERAR PASSWORD (UX PRO SIN BACKEND)
+btnRecuperarPassword.addEventListener("click", () => {
+    mostrarMensaje(
+        "Para recuperar tu contraseña, contacta con la guardería o el administrador.",
+        "info"
+    );
 });

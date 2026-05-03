@@ -21,10 +21,25 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="#resumen" class="nav-link active">Resumen</a>
-            <a href="#usuarios" class="nav-link">Usuarios</a>
-            <a href="#mascotas" class="nav-link">Mascotas</a>
-            <a href="#reservas" class="nav-link">Reservas</a>
+            <a href="#resumen" class="nav-link active">
+                <span>📊</span>
+                Resumen
+            </a>
+
+            <a href="#usuarios" class="nav-link">
+                <span>👤</span>
+                Usuarios
+            </a>
+
+            <a href="#mascotas" class="nav-link">
+                <span>🐕</span>
+                Mascotas
+            </a>
+
+            <a href="#reservas" class="nav-link">
+                <span>📅</span>
+                Reservas
+            </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -47,24 +62,29 @@
 
         <section id="resumen" class="section">
             <div class="section-header">
-                <h3>Resumen general</h3>
-                <p>Vista rápida del estado del sistema</p>
+                <div>
+                    <h3>Resumen general</h3>
+                    <p>Vista rápida del estado del sistema. Puedes pulsar en una tarjeta para ir al apartado correspondiente.</p>
+                </div>
             </div>
 
             <div class="stats-grid">
-                <article class="stat-card">
+                <article class="stat-card stat-card-clickable" data-admin-target="usuarios" title="Ver usuarios">
                     <span class="stat-label">Usuarios</span>
                     <strong id="statUsuarios">0</strong>
                 </article>
-                <article class="stat-card">
+
+                <article class="stat-card stat-card-clickable" data-admin-target="mascotas" title="Ver mascotas">
                     <span class="stat-label">Mascotas</span>
                     <strong id="statMascotas">0</strong>
                 </article>
-                <article class="stat-card">
+
+                <article class="stat-card stat-card-clickable" data-admin-target="reservas" title="Ver reservas">
                     <span class="stat-label">Reservas</span>
                     <strong id="statReservas">0</strong>
                 </article>
-                <article class="stat-card">
+
+                <article class="stat-card stat-card-clickable" data-admin-target="pendientes" title="Ver reservas pendientes">
                     <span class="stat-label">Pendientes</span>
                     <strong id="statPendientes">0</strong>
                 </article>
@@ -174,7 +194,7 @@
                             <th>Entrada</th>
                             <th>Salida</th>
                             <th>Tipo estancia</th>
-                            <th>Recogida</th>
+                            <th>Transporte</th>
                             <th>Peluquería</th>
                             <th>Estado</th>
                             <th>Precio</th>
@@ -246,7 +266,6 @@
 
         <form id="formEditarReserva" class="form-grid">
             <input type="hidden" id="editReservaId">
-            <input type="hidden" id="editReservaMascotaId">
 
             <div class="form-group">
                 <label for="editReservaFechaEntrada">Fecha entrada</label>
@@ -261,8 +280,8 @@
             <div class="form-group">
                 <label for="editReservaTipoEstancia">Tipo estancia</label>
                 <select id="editReservaTipoEstancia" required>
-                    <option value="DIA">DIA</option>
-                    <option value="LARGA_ESTANCIA">LARGA_ESTANCIA</option>
+                    <option value="GUARDERIA_DIA">Guardería diaria sin pernocta</option>
+                    <option value="ESTANCIA">Estancia con pernocta</option>
                 </select>
             </div>
 
@@ -279,7 +298,7 @@
             <div class="form-group checkbox-group">
                 <label>
                     <input type="checkbox" id="editReservaRecogida">
-                    Servicio de recogida
+                    Transporte recogida/entrega
                 </label>
             </div>
 

@@ -2,6 +2,8 @@ package com.guarderia.canina.repository;
 
 import com.guarderia.canina.model.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,4 +29,24 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             LocalDate fechaSalida,
             LocalDate fechaEntrada
     );
+
+    @Query("""
+            SELECT COUNT(r)
+            FROM Reserva r
+            WHERE r.estadoReserva IN ('PENDIENTE', 'CONFIRMADA')
+            AND r.fechaEntrada <= :fecha
+            AND r.fechaSalida >= :fecha
+            """)
+    long contarReservasOcupandoPlazaEnFecha(@Param("fecha") LocalDate fecha);
+
+    @Query("""
+            SELECT COUNT(r)
+            FROM Reserva r
+            WHERE r.estadoReserva IN ('PENDIENTE', 'CONFIRMADA')
+            AND r.id <> :reservaId
+            AND r.fechaEntrada <= :fecha
+            AND r.fechaSalida >= :fecha
+            """)
+    long contarReservasOcupandoPlazaEnFechaExcluyendoReserva(@Param("fecha") LocalDate fecha,
+                                                             @Param("reservaId") Long reservaId);
 }
