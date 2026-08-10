@@ -1,254 +1,333 @@
-# 🐶 Proyecto Final DAM - Guardería Canina
+# 🐶 Sistema de Gestión para Guardería Canina
 
-Aplicación web desarrollada como proyecto final del ciclo **Desarrollo de Aplicaciones Multiplataforma (DAM)**.
+Aplicación web full stack desarrollada como **Proyecto Final del Grado Superior en Desarrollo de Aplicaciones Multiplataforma (DAM)**.
 
-Permite la gestión completa de una guardería canina: usuarios, mascotas y reservas.
+El proyecto implementa un sistema completo para gestionar una guardería canina: **usuarios, mascotas, reservas, autenticación, área privada de cliente y panel de administración**.
 
----
-
-## 📌 Descripción
-
-La aplicación simula el funcionamiento de una guardería canina real situada en Navalcarnero, donde los clientes pueden:
-
-- Registrarse en la plataforma
-- Añadir sus mascotas
-- Crear y gestionar reservas
-- Consultar el estado de sus estancias
-
-Además, dispone de un panel de administración para la gestión global del sistema.
+> Proyecto desarrollado entre febrero y mayo de 2026.
 
 ---
 
-## 🚀 Tecnologías utilizadas
+## 🚀 Tecnologías
 
 ### Backend
 - Java 21
 - Spring Boot
-- Spring Data JPA (Hibernate)
+- Spring Security
+- Spring Data JPA
+- Hibernate
+- REST API
 - MySQL
 
 ### Frontend
 - HTML5
 - CSS3
-- JavaScript (Vanilla)
+- JavaScript
+- Fetch API
 
 ### Herramientas
 - IntelliJ IDEA
 - MySQL Workbench
+- Git
 - GitHub
 
 ---
 
-## 🧱 Estructura del proyecto
-src/
-├── main/
-│ ├── java/com/guarderia/canina/
-│ │ ├── controller/
-│ │ ├── model/
-│ │ ├── repository/
-│ │ └── config/
-│ └── resources/
-│ ├── static/
-│ │ ├── css/
-│ │ ├── js/
-│ │ ├── cliente.html
-│ │ ├── admin.html
-│ │ └── index.html
-│ └── application.properties
+## ✨ Funcionalidades principales
 
+### 👤 Área de cliente
+
+- Registro e inicio de sesión
+- Gestión del perfil
+- CRUD de mascotas
+- Creación y gestión de reservas
+- Consulta del estado de las reservas
+- Cálculo automático de precios
+- Actualización dinámica de información
+
+### 🛠️ Panel de administración
+
+- Gestión de usuarios
+- Gestión de mascotas
+- Gestión y confirmación de reservas
+- Cambio de estados:
+  - `PENDIENTE`
+  - `CONFIRMADA`
+  - `CANCELADA`
+  - `FINALIZADA`
+- Tarjetas resumen con indicadores del sistema
+- Filtros de búsqueda para usuarios, mascotas y reservas
+- Actualización dinámica de datos
 
 ---
 
-## ⚙️ Configuración y ejecución
+## 🧠 Reglas de negocio
 
-### 1️⃣ Crear base de datos
+La lógica de negocio se gestiona desde el backend e incluye, entre otras:
+
+- Validación de fechas de entrada y salida
+- Control de solapamiento de reservas por mascota
+- Cálculo del precio de la estancia
+- Gestión del estado de las reservas
+- Control de acceso según el rol del usuario
+
+---
+
+## 🔐 Seguridad y autenticación
+
+La aplicación utiliza **Spring Security** y autenticación basada en sesión.
+
+El sistema diferencia dos perfiles:
+
+- `CLIENTE`
+- `ADMIN`
+
+Los clientes acceden únicamente a sus mascotas y reservas, mientras que el administrador dispone de acceso al panel de gestión.
+
+---
+
+## 🔄 Comunicación Frontend - Backend
+
+El frontend utiliza JavaScript y `fetch()` para comunicarse con la API REST.
+
+Después de operaciones CRUD, las vistas actualizan los datos automáticamente sin necesidad de recargar completamente la página.
+
+También existen controles de actualización manual en determinadas secciones para sincronizar la información mostrada con el backend.
+
+---
+
+## 🗃️ Modelo de datos
+
+### Entidades principales
+
+**Usuario**
+
+Un usuario puede registrar varias mascotas.
+
+**Mascota**
+
+Cada mascota pertenece a un usuario y puede tener múltiples reservas.
+
+**Reserva**
+
+Representa una estancia asociada a una mascota.
+
+### Relaciones
+
+```text
+Usuario
+   │
+   └── 1:N ── Mascota
+                  │
+                  └── 1:N ── Reserva
+```
+
+---
+
+## 🧱 Arquitectura del proyecto
+
+```text
+src/
+└── main/
+    ├── java/
+    │   └── com/guarderia/canina/
+    │       ├── controller/
+    │       ├── model/
+    │       ├── repository/
+    │       └── config/
+    │
+    └── resources/
+        ├── static/
+        │   ├── css/
+        │   ├── js/
+        │   ├── index.html
+        │   ├── cliente.html
+        │   └── admin.html
+        │
+        └── application.properties
+```
+
+---
+
+# ⚙️ Instalación y ejecución
+
+## 1. Requisitos
+
+Para ejecutar el proyecto es necesario disponer de:
+
+- Java 21
+- MySQL
+- Maven
+
+---
+
+## 2. Crear la base de datos
 
 ```sql
 CREATE DATABASE guarderia_canina;
+```
 
-2️⃣ **Configurar conexión**
+---
 
-En application.properties:
+## 3. Configurar la conexión
 
-spring.datasource.url=jdbc:mysql://localhost:3306/guarderia_canina
-spring.datasource.username=TU_USUARIO
-spring.datasource.password=TU_PASSWORD
+La aplicación permite utilizar variables de entorno para evitar almacenar credenciales en el repositorio.
+
+```properties
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost:3306/guarderia_canina}
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:}
 
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
 
 server.port=8081
+```
 
-3️⃣ **Ejecutar aplicación**
+Configura `DB_USERNAME` y `DB_PASSWORD` con las credenciales correspondientes a tu instalación de MySQL.
 
-Desde IntelliJ:
+---
 
-Ejecutar la clase principal (GuarderiaCaninaApplication)
-Abrir navegador en:
+## 4. Ejecutar la aplicación
 
-👉 http://localhost:8081
+Desde IntelliJ IDEA puede ejecutarse la clase principal:
 
-👤 **Funcionalidades principales**
+```text
+GuarderiaCaninaApplication
+```
 
-Cliente
-Registro y login
-Gestión de perfil
-CRUD de mascotas
-Creación de reservas
-Consulta de estado de reservas
-Cálculo automático de precios
-Administrador
-Visualización de usuarios
-Gestión de reservas
-Control global del sistema
+Después, acceder desde el navegador a:
 
-🔐 **Autenticación**
+```text
+http://localhost:8081
+```
 
-El sistema utiliza sesiones mediante HttpSession, permitiendo:
+---
 
-Login persistente
-Protección básica de rutas
-Diferenciación de roles (CLIENTE / ADMIN)
+# 📸 Capturas de la aplicación
 
-🔄** Actualización de datos**
+## Landing
 
-La aplicación implementa actualización dinámica mediante JavaScript, lo que permite:
+<img width="1366" alt="Landing" src="https://github.com/user-attachments/assets/b020c089-e8d9-4858-99a1-bd3fd3e1e890" />
 
-Refrescar datos automáticamente tras operaciones CRUD
-Evitar recargas completas de página
-Sincronización continua con el backend
+---
 
-🗃️ **Modelo de datos**
-**Entidades principales:**
-Usuario
-Mascota
-Reserva
+## Login
 
-**Relaciones:**
-Un usuario → varias mascotas
-Una mascota → varias reservas
+<img width="1366" alt="Login" src="https://github.com/user-attachments/assets/d2a502f2-efe2-4abb-9256-e99b7c5b94ce" />
 
-🧪 **Estado del proyecto**
+---
 
-✔ Backend completo
-✔ Frontend funcional
-✔ CRUD completo
-✔ Autenticación básica
-✔ Panel administrador
-✔ Diseño responsive
-✔ Validaciones básicas
+## 👤 Área de cliente
 
-📅 **Planificación**
+### Perfil y gestión de mascotas
 
-El proyecto se ha desarrollado entre el 28 de febrero y el 3 de mayo del 2026, siguiendo una planificación estructurada por fases:
+<img width="1034" alt="Perfil cliente" src="https://github.com/user-attachments/assets/a122f9e0-f94e-42f5-ab82-510323517c24" />
 
-Análisis
-Diseño
-Desarrollo backend
-Desarrollo frontend
-Integración
-Testing
-Documentación
+<img width="1034" alt="Gestión mascotas" src="https://github.com/user-attachments/assets/3f2aea06-92b1-4d9c-982d-53ef5de8da03" />
 
-📸 Capturas
+### Gestión de reservas
 
-landing
-<img width="1366" height="2349" alt="Captura Landing" src="https://github.com/user-attachments/assets/b020c089-e8d9-4858-99a1-bd3fd3e1e890" />
+<img width="1034" alt="Reserva cliente" src="https://github.com/user-attachments/assets/ce304d77-3689-4c90-b2c0-0690b4b4e7ca" />
 
-login
+<img width="1034" alt="Reserva cliente" src="https://github.com/user-attachments/assets/9cd93550-f13b-44e9-914f-b4d6e6c98dfa" />
 
-<img width="1366" height="663" alt="Captura Login" src="https://github.com/user-attachments/assets/d2a502f2-efe2-4abb-9256-e99b7c5b94ce" />
+---
 
-Cliente (perfil usuario y registro de mascotas)
-<img width="1034" height="409" alt="image" src="https://github.com/user-attachments/assets/a122f9e0-f94e-42f5-ab82-510323517c24" />
+## 🛠️ Panel de administración
 
-<img width="1034" height="409" alt="image" src="https://github.com/user-attachments/assets/3f2aea06-92b1-4d9c-982d-53ef5de8da03" />
+<img width="1366" alt="Panel administración" src="https://github.com/user-attachments/assets/0357f695-63ea-4ae5-ad85-4bbcbbd34991" />
 
-Cliente (reserva)
+<img width="982" alt="Gestión administración" src="https://github.com/user-attachments/assets/abe86612-96f0-47d8-bb68-6a967ef97ba1" />
 
-<img width="1034" height="608" alt="image" src="https://github.com/user-attachments/assets/ce304d77-3689-4c90-b2c0-0690b4b4e7ca" />
+### Dashboard
 
-Cliente (reserva_bis)
+El panel muestra indicadores de:
 
-<img width="1034" height="614" alt="image" src="https://github.com/user-attachments/assets/9cd93550-f13b-44e9-914f-b4d6e6c98dfa" />
+- Usuarios registrados
+- Mascotas registradas
+- Reservas
+- Reservas pendientes de confirmar
 
-admin (página usuario gestor de reservas)
+Las tarjetas permiten acceder directamente a cada área de gestión.
 
-<img width="1366" height="1863" alt="Captura página_admin" src="https://github.com/user-attachments/assets/0357f695-63ea-4ae5-ad85-4bbcbbd34991" />
+<img width="944" alt="Dashboard administrador" src="https://github.com/user-attachments/assets/2c736c70-1a00-47c6-ba71-002ee1011c4e" />
 
-Admin (usuario gestor de reservas)
+---
 
-<img width="982" height="1339" alt="image" src="https://github.com/user-attachments/assets/abe86612-96f0-47d8-bb68-6a967ef97ba1" />
+## 🔎 Filtros y búsqueda
 
+### Usuarios
 
-El usuario administrador dispone de unas tarjetas resumen, donde se indica: 
--	Nº de usuarios registrados
--	Nº de mascotas registradas
--	Nº de Reservas 
--	Nº de reservas pendientes de confirmar
+<img width="1034" alt="Filtro usuarios" src="https://github.com/user-attachments/assets/fc1cc0b8-8b15-4b93-8fd5-a6c2916f6f59" />
 
-Dichas tarjetas son clicables y llevan a apartado correspondiente,
+### Mascotas
 
- <img width="944" height="173" alt="image" src="https://github.com/user-attachments/assets/2c736c70-1a00-47c6-ba71-002ee1011c4e" />
+<img width="1034" alt="Filtro mascotas" src="https://github.com/user-attachments/assets/4c1a4e28-d458-4813-b2b8-35e5fe330c9d" />
 
+### Reservas
 
-Tanto los usuarios, mascotas disponen de un campo filtro para una búsqueda rápida y concisa
+Las reservas pueden filtrarse por:
 
-Filtro por nombre de usuario.
- <img width="1034" height="158" alt="image" src="https://github.com/user-attachments/assets/fc1cc0b8-8b15-4b93-8fd5-a6c2916f6f59" />
+- Nombre de mascota
+- Tipo de estancia
+- Estado de la reserva
 
+<img width="1034" alt="Filtro reservas" src="https://github.com/user-attachments/assets/c23a7099-173e-4da6-b21c-cecab7680b06" />
 
-Filtro por nombre de mascota 
-<img width="1034" height="158" alt="image" src="https://github.com/user-attachments/assets/4c1a4e28-d458-4813-b2b8-35e5fe330c9d" />
+<img width="1034" alt="Estados reservas" src="https://github.com/user-attachments/assets/b0cef026-ba02-475b-8074-ae1ec5feab81" />
 
-En las reservas existen dos tipos de filtros, pueden así filtrar por:
+---
 
--	Nombre de la mascota 
--	Tipo de estancia
--	Tipo de estado de la reserva (pendiente, confirmada, cancelada, finalizada)
+## ✅ Confirmación de reservas
 
-Filtro por tipo de estado
-<img width="1034" height="333" alt="image" src="https://github.com/user-attachments/assets/c23a7099-173e-4da6-b21c-cecab7680b06" /> 
+Las reservas se crean inicialmente con estado `PENDIENTE`.
 
-Filtro por estados de reserva
- <img width="1034" height="181" alt="image" src="https://github.com/user-attachments/assets/b0cef026-ba02-475b-8074-ae1ec5feab81" />
- 
-<img width="1034" height="347" alt="image" src="https://github.com/user-attachments/assets/2b86b022-3560-4768-8aed-d0466ecbeb82" />
+Desde el panel de administración pueden revisarse y posteriormente cambiar su estado a `CONFIRMADA`.
 
-Confirmación de Reserva
+<img width="625" alt="Confirmación reserva" src="https://github.com/user-attachments/assets/af4cd6fb-2647-4475-a27d-79fd98aad4c5" />
 
-El administrador se encargará de confirmar las reservas de los usuarios-clientes-mascotas, una vez que según procedimientos de empresa se compruebe que está todo correcto, pago, confirmar disponibilidad o consulta en casos específicos, como alergias, cuidados especiales, etc…
+Una vez confirmada:
 
-<img width="625" height="415" alt="image" src="https://github.com/user-attachments/assets/af4cd6fb-2647-4475-a27d-79fd98aad4c5" />
+<img width="1034" alt="Reserva confirmada" src="https://github.com/user-attachments/assets/b39f6657-a999-447f-873f-f4a5b1a09d76" />
 
- Una vez confirmada cambia el estado a “CONFIRMADA”
-<img width="1034" height="105" alt="image" src="https://github.com/user-attachments/assets/b39f6657-a999-447f-873f-f4a5b1a09d76" />  
+El cliente puede consultar el estado actualizado desde su panel:
 
-El Cliente será notificado por correo y wasap de la confirmación de su reserva.
-Así mismo en el panel de clientes el usuario podrá ver el estado de su reserva actualizado.
-Confirmado.
+<img width="508" alt="Estado reserva cliente" src="https://github.com/user-attachments/assets/94cc80d4-c12c-47db-8a18-4793ec8a3172" />
 
- <img width="508" height="506" alt="image" src="https://github.com/user-attachments/assets/94cc80d4-c12c-47db-8a18-4793ec8a3172" />
+---
 
-Nota: 
+## 🧪 Estado del proyecto
 
-Actualización dinámica, recarga automática tras operaciones CRUD y sincronización con backend.
-El panel cliente y el panel administrador incorporan actualización dinámica de datos mediante JavaScript y llamadas fetch a la API REST. Tras crear, modificar o eliminar registros, las listas se recargan automáticamente para mostrar la información actualizada sin necesidad de recargar toda la página.
+- ✅ Backend funcional
+- ✅ Frontend funcional
+- ✅ API REST
+- ✅ CRUD de usuarios, mascotas y reservas
+- ✅ Autenticación mediante Spring Security
+- ✅ Roles CLIENTE / ADMIN
+- ✅ Validaciones de negocio
+- ✅ Cálculo de precios
+- ✅ Panel de administración
+- ✅ Actualización dinámica mediante JavaScript
+- ✅ Diseño responsive
 
-Además, existen botones de actualización manual en secciones clave como mascotas, reservas y resumen, lo que permite sincronizar los datos visibles con la base de datos y reducir errores por información desactualizada.
+---
 
+## 📚 Contexto académico
 
-📦 Entrega
+Proyecto desarrollado como trabajo final del ciclo:
 
-El proyecto incluye:
+**Técnico Superior en Desarrollo de Aplicaciones Multiplataforma (DAM)**
 
-Código fuente completo
-README
-Memoria del proyecto
-Capturas
-Base de datos (configurable)
+Desarrollado entre:
 
-José Luis Vázquez Matas
+**28 de febrero de 2026 - 3 de mayo de 2026**
 
-Proyecto final DAM – 2026
+El proyecto incluye código fuente, documentación técnica, memoria y capturas de funcionamiento.
+
+---
+
+## 👨‍💻 Autor
+
+**José Luis Vázquez Matas**
+
+Proyecto Final DAM · 2026
